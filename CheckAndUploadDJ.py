@@ -31,15 +31,6 @@ def xls_2_xlsx(xls_path, xlsx_path):
 
 
 CikList = {
-'PFE':'0000078003',
-'PG':'0000080424',
-'TRV':'0000086312',
-'UNH':'0000731766',
-'UTX':'0000101829',
-'VZ':'0000732712',
-'V':'0001403161',
-'WMT':'0000104169',
-'WBA':'0001618921',
 'DIS':'0001744489'
         }
 for x in CikList: #runs through the CikList
@@ -54,8 +45,10 @@ for x in CikList: #runs through the CikList
     for i in range(0,len(list2)):
         if (str(CIK[4]) == '0'): 
             first = str(CIK[5:10])
-        else: 
+        elif (str(CIK[3]) == '0'): 
             first = str(CIK[4:10])
+        else:
+            first = str(CIK[3:10])
 
         if list2[2][0:6] != 'Acc-no':
             print('loop3')
