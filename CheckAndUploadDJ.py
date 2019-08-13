@@ -30,26 +30,7 @@ def xls_2_xlsx(xls_path, xlsx_path):
     wb.Close()
 
 
-CikList = {'MMM':'0000066740', #Companies you want to include in your investigation
-'AXP':'0000004962',
-'AAPL':'0000320193',
-'BA':'0000012927',
-'CAT':'0000018230',
-'CVX':'0000093410',
-'CSCO':'0000858877',
-'KO':'0000021344',
-'DOW':'0001751788',
-'XOM':'0000034088',
-'GS':'0000886982',
-'HD':'0000354950',
-'IBM':'0000051143',
-'INTC':'0000050863',
-'JNJ':'0000200406',
-'JPM':'0000019617',
-'MCD':'0000063908',
-'MRK':'0000310158',
-'MSFT':'0000789019',
-'NKE':'0000320187',
+CikList = {
 'PFE':'0000078003',
 'PG':'0000080424',
 'TRV':'0000086312',
@@ -71,12 +52,102 @@ for x in CikList: #runs through the CikList
     list2 = soup.findAll(string=re.compile(r'\d\d\d\d-\d\d-\d\d'))
         
     for i in range(0,len(list2)):
-        if (str(CIK[3]) == '0'): 
+        if (str(CIK[4]) == '0'): 
             first = str(CIK[5:10])
         else: 
             first = str(CIK[4:10])
+
+        if list2[2][0:6] != 'Acc-no':
+            print('loop3')
+            #print('ok')
+            if i == 0:
+                pass
+            elif i == 1:
+                pass
+            elif i == 2:
+                pass
+            elif i % 2 == 0:
+                third = list2[i]
+            elif i % 1 ==0:
+                second = str(list2[i][8:18]+ list2[i][19:21] + list2[i][22:28])
+                try: 
+                    url = 'https://www.sec.gov/Archives/edgar/data/{}/{}/Financial_Report.xlsx'.format(first,second)
+                    sheet = pd.read_excel(url)
+                    print('File can be accessed from the SEC site')
+                except:
+                    UploadFile = 'Financial_Report{}_{}.xlsx'.format(x,third)
+                    for file1 in file_list:
+                        DriveTitles.append(file1['title'])
+                    if UploadFile in DriveTitles:
+                        print('This file is already on the drive')
+                    else:
+                        xlsx_path = r'C:\Users\Roy\AppData\Local\Programs\Python\Python37\AIstockexchange\StockExchangeAI\Financial_Report{}_{}.xlsx'.format(x,third)
+                        url = 'https://www.sec.gov/Archives/edgar/data/{}/{}/Financial_Report.xls'.format(first,second)
+                        r = requests.get(url, allow_redirects=True)
+                        open('Financial_Report.xls','wb').write(r.content) #saves the temporary file on your computer
+                        xls_2_xlsx(xls_path,xlsx_path) #converts the .xls file to a .xlsx file
+                        os.remove('Financial_Report.xls') #removes the temporary file from your computer
+                        file1 = drive.CreateFile()
+                        file1.SetContentFile('Financial_Report{}_{}.xlsx'.format(x,third))
+                        file1.Upload()
+                        print('File uploaded to drive succesfully')
+                        if deleting == 0:
+                            x2 = x
+                            third2 = third
+                            deleting += 1
+                        else:
+                            del_file(x2,third2)
+                            x2 = x
+                            third2 = third
+                            deleting += 1
+
+        elif list2[1][0:6] != 'Acc-no':
+            print('loop2')
+            #print('ok')
+            if i == 0:
+                pass
+            elif i == 1:
+                pass
+            elif i % 2 == 0:
+                second = str(list2[i][8:18]+ list2[i][19:21] + list2[i][22:28])
+                #print(second)
+            elif i % 1 ==0:
+                third = list2[i]
+                #print('third = '+third)
+                try: 
+                    url = 'https://www.sec.gov/Archives/edgar/data/{}/{}/Financial_Report.xlsx'.format(first,second)
+                    sheet = pd.read_excel(url)
+                    print('File can be accessed from the SEC site')
+                except:
+                    UploadFile = 'Financial_Report{}_{}.xlsx'.format(x,third)
+                    for file1 in file_list:
+                        DriveTitles.append(file1['title'])
+                    if UploadFile in DriveTitles:
+                        print('This file is already on the drive')
+                    else:
+                        xlsx_path = r'C:\Users\Roy\AppData\Local\Programs\Python\Python37\AIstockexchange\StockExchangeAI\Financial_Report{}_{}.xlsx'.format(x,third)
+                        url = 'https://www.sec.gov/Archives/edgar/data/{}/{}/Financial_Report.xls'.format(first,second)
+                        r = requests.get(url, allow_redirects=True)
+                        open('Financial_Report.xls','wb').write(r.content) #saves the temporary file on your computer
+                        xls_2_xlsx(xls_path,xlsx_path) #converts the .xls file to a .xlsx file
+                        os.remove('Financial_Report.xls') #removes the temporary file from your computer
+                        file1 = drive.CreateFile()
+                        file1.SetContentFile('Financial_Report{}_{}.xlsx'.format(x,third))
+                        file1.Upload()
+                        print('File uploaded to drive succesfully')
+                        if deleting == 0:
+                            x2 = x
+                            third2 = third
+                            deleting += 1
+                        else:
+                            del_file(x2,third2)
+                            x2 = x
+                            third2 = third
+                            deleting += 1
+                
         
-        if list2[0][0:6] != 'Acc-no':
+        elif list2[0][0:6] != 'Acc-no':
+            print('loop0')
             #print('ok')
             if i == 0:
                 pass
@@ -116,7 +187,8 @@ for x in CikList: #runs through the CikList
                             x2 = x
                             third2 = third
                             deleting += 1
-        else:
+        elif list2[0][0:6] == 'Acc-no':
+            print('loop1')
             if i == 0:
                 second = str(list2[i][8:18]+ list2[i][19:21] + list2[i][22:28])
                 #print(second)
@@ -159,5 +231,11 @@ for x in CikList: #runs through the CikList
                             x2 = x
                             third2 = third
                             deleting += 1
+        
+        else:
+            print('New format encountered')
+            quit()
+                
+        
             
 
