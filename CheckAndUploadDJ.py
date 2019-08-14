@@ -71,12 +71,8 @@ for x in CikList: #runs through the CikList
     list2 = soup.findAll(string=re.compile(r'\d\d\d\d-\d\d-\d\d'))
         
     for i in range(0,len(list2)):
-        if (str(CIK[4]) == '0'): 
-            first = str(CIK[5:10])
-        elif (str(CIK[3]) == '0'): 
-            first = str(CIK[4:10])
-        else:
-            first = str(CIK[3:10])
+        
+        first = str(CIK.lstrip('0'))
 
         if list2[2][0:6] != 'Acc-no':
             print('loop3')
