@@ -1,3 +1,3 @@
 # StockExchangeAI
 
-create a portfolio through an AI
+create a portfolio through an AI.
