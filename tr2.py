@@ -15,15 +15,11 @@ list2 = soup.findAll('tr')
 Search = re.compile(r'Q\d \d\d\d\d')
 Search2 = re.compile(r'\$\-?\d{1,}.\d{2}')
 DATE = list()
-CikList = ['AMZN','MSFT']
 df1 = pd.DataFrame(columns=['Quarter'],index=range(0,58))
+Counter = 0
+
 for i in TickerList:
     df1['ESP_{}'.format(i)] = 'NaN'
-    
-    
-
-#df = pd.DataFrame(columns=['Quarter','ESP AMZN','ESP MSFT'], index=range(0,58))
-Counter = 0
 
 for i in range(0,len(list2)): #This for-loop retrieves the good Quarters
     mo1 = Search.search(str(list2[i])[35:42])
@@ -56,5 +52,5 @@ for i in range(0,len(TickerList)):
                 dfb = next(iter(df1[df1['Quarter']== mo1.group() ].index), 'no match')
                 df1['ESP_AMZN'][dfb] = mo2.group()
         except:
-        pass
+            pass
 print(df1)
