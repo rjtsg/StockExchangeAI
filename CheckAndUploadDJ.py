@@ -69,185 +69,51 @@ for x in CikList: #runs through the CikList
     soup = bs4.BeautifulSoup(res.text) #reads html page of the quartlerly reports
 
     list2 = soup.findAll(string=re.compile(r'\d\d\d\d-\d\d-\d\d'))
+
+    for j in range(0,len(list2)):
+        if list2[0][0:6] != 'Acc-no':
+            del list2[0]
         
     for i in range(0,len(list2)):
         
         first = str(CIK.lstrip('0'))
 
-        if list2[2][0:6] != 'Acc-no':
-            print('loop3')
-            #print('ok')
-            if i == 0:
-                pass
-            elif i == 1:
-                pass
-            elif i == 2:
-                pass
-            elif i % 2 == 0:
-                third = list2[i]
-            elif i % 1 ==0:
-                second = str(list2[i][8:18]+ list2[i][19:21] + list2[i][22:28])
-                try: 
-                    url = 'https://www.sec.gov/Archives/edgar/data/{}/{}/Financial_Report.xlsx'.format(first,second)
-                    sheet = pd.read_excel(url)
-                    print('File can be accessed from the SEC site')
-                except:
-                    UploadFile = 'Financial_Report{}_{}.xlsx'.format(x,third)
-                    for file1 in file_list:
-                        DriveTitles.append(file1['title'])
-                    if UploadFile in DriveTitles:
-                        print('This file is already on the drive')
+        if i == 0:
+            second = str(list2[i][8:18]+ list2[i][19:21] + list2[i][22:28])
+        elif i % 2 == 0:
+            second = str(list2[i][8:18]+ list2[i][19:21] + list2[i][22:28])
+        elif i % 1 == 0:
+            third = list2[i]
+            try:
+                url = 'https://www.sec.gov/Archives/edgar/data/{}/{}/Financial_Report.xlsx'.format(first,second)
+                sheet = pd.read_excel(url)
+                print('File can be accessed from the SEC site')
+            except:
+                UploadFile = 'Financial_Report{}_{}.xlsx'.format(x,third)
+                for file1 in file_list:
+                    DriveTitles.append(file1['title'])
+                if UploadFile in DriveTitles:
+                    print('This file is already on the drive')
+                else:
+                    xlsx_path = r'C:\Users\Roy\AppData\Local\Programs\Python\Python37\AIstockexchange\StockExchangeAI\Financial_Report{}_{}.xlsx'.format(x,third)
+                    url = 'https://www.sec.gov/Archives/edgar/data/{}/{}/Financial_Report.xls'.format(first,second)
+                    r = requests.get(url, allow_redirects=True)
+                    open('Financial_Report.xls','wb').write(r.content) #saves the temporary file on your computer
+                    xls_2_xlsx(xls_path,xlsx_path) #converts the .xls file to a .xlsx file
+                    os.remove('Financial_Report.xls') #removes the temporary file from your computer
+                    file1 = drive.CreateFile()
+                    file1.SetContentFile('Financial_Report{}_{}.xlsx'.format(x,third))
+                    file1.Upload()
+                    print('File uploaded to drive succesfully')
+                    if deleting == 0:
+                        x2 = x
+                        third2 = third
+                        deleting += 1
                     else:
-                        xlsx_path = r'C:\Users\Roy\AppData\Local\Programs\Python\Python37\AIstockexchange\StockExchangeAI\Financial_Report{}_{}.xlsx'.format(x,third)
-                        url = 'https://www.sec.gov/Archives/edgar/data/{}/{}/Financial_Report.xls'.format(first,second)
-                        r = requests.get(url, allow_redirects=True)
-                        open('Financial_Report.xls','wb').write(r.content) #saves the temporary file on your computer
-                        xls_2_xlsx(xls_path,xlsx_path) #converts the .xls file to a .xlsx file
-                        os.remove('Financial_Report.xls') #removes the temporary file from your computer
-                        file1 = drive.CreateFile()
-                        file1.SetContentFile('Financial_Report{}_{}.xlsx'.format(x,third))
-                        file1.Upload()
-                        print('File uploaded to drive succesfully')
-                        if deleting == 0:
-                            x2 = x
-                            third2 = third
-                            deleting += 1
-                        else:
-                            del_file(x2,third2)
-                            x2 = x
-                            third2 = third
-                            deleting += 1
-
-        elif list2[1][0:6] != 'Acc-no':
-            print('loop2')
-            #print('ok')
-            if i == 0:
-                pass
-            elif i == 1:
-                pass
-            elif i % 2 == 0:
-                second = str(list2[i][8:18]+ list2[i][19:21] + list2[i][22:28])
-                #print(second)
-            elif i % 1 ==0:
-                third = list2[i]
-                #print('third = '+third)
-                try: 
-                    url = 'https://www.sec.gov/Archives/edgar/data/{}/{}/Financial_Report.xlsx'.format(first,second)
-                    sheet = pd.read_excel(url)
-                    print('File can be accessed from the SEC site')
-                except:
-                    UploadFile = 'Financial_Report{}_{}.xlsx'.format(x,third)
-                    for file1 in file_list:
-                        DriveTitles.append(file1['title'])
-                    if UploadFile in DriveTitles:
-                        print('This file is already on the drive')
-                    else:
-                        xlsx_path = r'C:\Users\Roy\AppData\Local\Programs\Python\Python37\AIstockexchange\StockExchangeAI\Financial_Report{}_{}.xlsx'.format(x,third)
-                        url = 'https://www.sec.gov/Archives/edgar/data/{}/{}/Financial_Report.xls'.format(first,second)
-                        r = requests.get(url, allow_redirects=True)
-                        open('Financial_Report.xls','wb').write(r.content) #saves the temporary file on your computer
-                        xls_2_xlsx(xls_path,xlsx_path) #converts the .xls file to a .xlsx file
-                        os.remove('Financial_Report.xls') #removes the temporary file from your computer
-                        file1 = drive.CreateFile()
-                        file1.SetContentFile('Financial_Report{}_{}.xlsx'.format(x,third))
-                        file1.Upload()
-                        print('File uploaded to drive succesfully')
-                        if deleting == 0:
-                            x2 = x
-                            third2 = third
-                            deleting += 1
-                        else:
-                            del_file(x2,third2)
-                            x2 = x
-                            third2 = third
-                            deleting += 1
-                
-        
-        elif list2[0][0:6] != 'Acc-no':
-            print('loop0')
-            #print('ok')
-            if i == 0:
-                pass
-            elif i % 2 ==0:
-                third = list2[i]
-                #print('third = '+third)
-            elif i % 1 == 0:
-                second = str(list2[i][8:18]+ list2[i][19:21] + list2[i][22:28])
-                #print(second)
-                try: 
-                    url = 'https://www.sec.gov/Archives/edgar/data/{}/{}/Financial_Report.xlsx'.format(first,second)
-                    sheet = pd.read_excel(url)
-                    print('File can be accessed from the SEC site')
-                except:
-                    UploadFile = 'Financial_Report{}_{}.xlsx'.format(x,third)
-                    for file1 in file_list:
-                        DriveTitles.append(file1['title'])
-                    if UploadFile in DriveTitles:
-                        print('This file is already on the drive')
-                    else:
-                        xlsx_path = r'C:\Users\Roy\AppData\Local\Programs\Python\Python37\AIstockexchange\StockExchangeAI\Financial_Report{}_{}.xlsx'.format(x,third)
-                        url = 'https://www.sec.gov/Archives/edgar/data/{}/{}/Financial_Report.xls'.format(first,second)
-                        r = requests.get(url, allow_redirects=True)
-                        open('Financial_Report.xls','wb').write(r.content) #saves the temporary file on your computer
-                        xls_2_xlsx(xls_path,xlsx_path) #converts the .xls file to a .xlsx file
-                        os.remove('Financial_Report.xls') #removes the temporary file from your computer
-                        file1 = drive.CreateFile()
-                        file1.SetContentFile('Financial_Report{}_{}.xlsx'.format(x,third))
-                        file1.Upload()
-                        print('File uploaded to drive succesfully')
-                        if deleting == 0:
-                            x2 = x
-                            third2 = third
-                            deleting += 1
-                        else:
-                            del_file(x2,third2)
-                            x2 = x
-                            third2 = third
-                            deleting += 1
-        elif list2[0][0:6] == 'Acc-no':
-            print('loop1')
-            if i == 0:
-                second = str(list2[i][8:18]+ list2[i][19:21] + list2[i][22:28])
-                #print(second)
-            elif i % 2 == 0:
-                second = str(list2[i][8:18]+ list2[i][19:21] + list2[i][22:28])
-                #print(second)
-            elif i % 1 == 0:
-                third = list2[i]
-                #print('third = '+third)
-            
-                #print('out of except')
-                #WorkHorse(x,first,second,third)
-                try: 
-                    url = 'https://www.sec.gov/Archives/edgar/data/{}/{}/Financial_Report.xlsx'.format(first,second)
-                    sheet = pd.read_excel(url)
-                    print('File can be accessed from the SEC site')
-                except:
-                    UploadFile = 'Financial_Report{}_{}.xlsx'.format(x,third)
-                    for file1 in file_list:
-                        DriveTitles.append(file1['title'])
-                    if UploadFile in DriveTitles:
-                        print('This file is already on the drive')
-                    else:
-                        xlsx_path = r'C:\Users\Roy\AppData\Local\Programs\Python\Python37\AIstockexchange\StockExchangeAI\Financial_Report{}_{}.xlsx'.format(x,third)
-                        url = 'https://www.sec.gov/Archives/edgar/data/{}/{}/Financial_Report.xls'.format(first,second)
-                        r = requests.get(url, allow_redirects=True)
-                        open('Financial_Report.xls','wb').write(r.content) #saves the temporary file on your computer
-                        xls_2_xlsx(xls_path,xlsx_path) #converts the .xls file to a .xlsx file
-                        os.remove('Financial_Report.xls') #removes the temporary file from your computer
-                        file1 = drive.CreateFile()
-                        file1.SetContentFile('Financial_Report{}_{}.xlsx'.format(x,third))
-                        file1.Upload()
-                        print('File uploaded to drive succesfully')
-                        if deleting == 0:
-                            x2 = x
-                            third2 = third
-                            deleting += 1
-                        else:
-                            del_file(x2,third2)
-                            x2 = x
-                            third2 = third
-                            deleting += 1
+                        del_file(x2,third2)
+                        x2 = x
+                        third2 = third
+                        deleting += 1
         
         else:
             print('New format encountered')

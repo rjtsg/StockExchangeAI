@@ -11,6 +11,8 @@ DriveTitles = list()
 for file1 in file_list:
     if int(file1['fileSize']) < 11000:
         print('title: %s, size: %s' % (file1['title'], file1['id']))
+        file2 = drive.CreateFile({'id':file1['id']})
+        file2.Delete()
         
   
 print('done')
