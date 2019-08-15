@@ -21,7 +21,7 @@ def getDataFrame(ticker):
             os.remove(filename)
             return df
 
-printData = getDataFrame('AAPL')
+printData = getDataFrame('V')
 
 print(printData.head())
 print('--------------------')            
