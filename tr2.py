@@ -20,6 +20,9 @@ Counter = 0
 TickerList=['AAPL']
 TickerName=['apple']
 
+# TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
+# TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
+
 #TickerList zou dus de afkorting moeten zijn
 #TickerName zou de volledige naam moeten zijn in de lijst
 
