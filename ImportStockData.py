@@ -20,7 +20,7 @@ def saveStockInfo(TickerList): #Needs to be a list
         df = pd.DataFrame(list(datareader)[15:], columns=['date','open','high','low','close','volume'])
         df.to_excel('StockData_{}.xlsx'.format(x))
         print(x)
-        return 'Saved to local foldern'
+        return 'Saved to local folder'
 
 
 
