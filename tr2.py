@@ -1,7 +1,6 @@
 import requests, bs4, re
 import pandas as pd
 import xlrd
-import win32com.client as win32
 import os
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -17,6 +16,9 @@ Search2 = re.compile(r'\$\-?\d{1,}.\d{2}')
 DATE = list()
 df1 = pd.DataFrame(columns=['Quarter'],index=range(0,58))
 Counter = 0
+
+TickerList=['AAPL']
+TickerName=['apple']
 
 #TickerList zou dus de afkorting moeten zijn
 #TickerName zou de volledige naam moeten zijn in de lijst
