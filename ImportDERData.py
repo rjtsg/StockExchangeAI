@@ -16,7 +16,7 @@ Search2 = re.compile(r'\$\-?\d{1,}.\d{2}')
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 BeginYear = 2019
-EndYear = 2006
+EndYear = 2005
 Dates = list()
 Months = ['12','09','06','03']
 Days = [31,30,30,31]
@@ -37,12 +37,12 @@ while jaar >= EndYear:
 df = pd.DataFrame({'Date':Dates})
 
 for i in TickerList: #makes columns for the ESP input
-    df['PER_{}'.format(i)] = 'NaN'
+    df['DER_{}'.format(i)] = 'NaN'
 
 for i in range(0,len(TickerList)): #Fills in the EPS column for each company
     x = TickerList[i]
     y = TickerName[i]
-    url = 'https://www.macrotrends.net/stocks/charts/{}/{}/pe-ratio'.format(x,y)
+    url = 'https://www.macrotrends.net/stocks/charts/{}/{}/debt-equity-ratio'.format(x,y)
     res = requests.get(url)
     res.raise_for_status()
     soup = bs4.BeautifulSoup(res.text,'lxml')
@@ -67,13 +67,13 @@ for i in range(0,len(TickerList)): #Fills in the EPS column for each company
                 print(mo1.group(2))
                 print('Something has gone wrong')
             dfb = next(iter(df[df['Date']== quart].index), 'no match')
-            df['PER_{}'.format(x)][dfb] = mo2[-1]
+            df['DER_{}'.format(x)][dfb] = mo2[-1]
             
 
-df.to_excel('PERData.xlsx')
+df.to_excel('DERData.xlsx')
 file1 = drive.CreateFile()
-file1.SetContentFile('PERData.xlsx')
+file1.SetContentFile('DERData.xlsx')
 file1.Upload()
 print('Upload to the drive is succesful')
 file1 = drive.CreateFile()#can be commented if it works without for you
-os.remove('PERData.xlsx')
+os.remove('DERData.xlsx')

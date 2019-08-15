@@ -42,5 +42,5 @@ file1 = drive.CreateFile()
 file1.SetContentFile('EPSDATA.xlsx')
 file1.Upload()
 print('Upload to the drive is succesful')
-file1 = drive.CreateFile()
+file1 = drive.CreateFile() #can be commented if it works without for you
 os.remove('EPSData.xlsx')
