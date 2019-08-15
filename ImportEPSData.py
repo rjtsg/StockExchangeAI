@@ -17,9 +17,6 @@ df1 = pd.read_excel('Quarters.xlsx')
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 
-def del_file():
-    os.remove('EPSDATA.xlsx')
-
 for i in TickerList: #makes columns for the ESP input
     df1['ESP_{}'.format(i)] = 'NaN'
 
@@ -44,5 +41,6 @@ df1.to_excel('EPSDATA.xlsx')
 file1 = drive.CreateFile()
 file1.SetContentFile('EPSDATA.xlsx')
 file1.Upload()
-del_file()
 print('Upload to the drive is succesful')
+file1 = drive.CreateFile()
+os.remove('EPSData.xlsx')
