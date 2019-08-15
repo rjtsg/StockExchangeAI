@@ -5,6 +5,7 @@ import os
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import time
+import lxml
 
 gauth = GoogleAuth()
 gauth.LocalWebserverAuth()
@@ -28,7 +29,7 @@ for i in range(0,len(TickerList)): #Fills in the EPS column for each company
     url1 = 'https://www.macrotrends.net/stocks/charts/{}/{}/eps-earnings-per-share-diluted'.format(x,y)
     res = requests.get(url1)
     res.raise_for_status()
-    soup = bs4.BeautifulSoup(res.text)
+    soup = bs4.BeautifulSoup(res.text,'lxml')
     list2 = soup.findAll('tr')
     Search = re.compile(r'Q\d \d\d\d\d') #Search regex for Quarters
     Search2 = re.compile(r'\$\-?\d{1,}.\d{2}') #Search regex for EPS
