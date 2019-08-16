@@ -7,9 +7,9 @@ from pydrive.drive import GoogleDrive
 from datetime import datetime
 import numpy as np
 
-# gauth = GoogleAuth()
-# gauth.LocalWebserverAuth()
-# drive = GoogleDrive(gauth)
+gauth = GoogleAuth()
+gauth.LocalWebserverAuth()
+drive = GoogleDrive(gauth)
 
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 
@@ -32,12 +32,18 @@ def getDividend(TickerList):
                         if (int(datum.strftime("%m")) in range(2,5)): 
                                 datum = 'Q1 ' + str(int(datum.strftime("%Y")))
                         elif (int(datum.strftime("%m")) in range(5,8)): 
-                                datum = 'Q2 ' + str(int(datum.strftime("%Y")))
+                                if x == 'PFE' and int(datum.strftime("%m")) == 7:
+                                        datum = 'Q3 ' + str(int(datum.strftime("%Y")))
+                                else:
+                                        datum = 'Q2 ' + str(int(datum.strftime("%Y")))
                         elif (int(datum.strftime("%m")) in range(8,11)): 
                                 datum = 'Q3 ' + str(int(datum.strftime("%Y")))
                         else:
                                 if int(datum.strftime("%m")) == 1:
-                                        datum = 'Q4 ' + str(int(datum.strftime("%Y"))-1)
+                                        if x == 'PFE':
+                                                datum = 'Q1 ' + str(int(datum.strftime("%Y")))
+                                        else:
+                                                datum = 'Q4 ' + str(int(datum.strftime("%Y"))-1)
                                 else:
                                         datum = 'Q4 ' + str(int(datum.strftime("%Y")))
 
@@ -64,7 +70,11 @@ def getDividend(TickerList):
         df = df.set_index('date')
         df = df.reindex(sorted(df.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
         print(df.head())
-        df.to_excel('dividends.xlsx')        
-        return 'Done'
+        df.to_excel('dividends.xlsx')   
+        file = drive.CreateFile()
+        file.SetContentFile('dividends.xlsx')
+        file.Upload()
+        os.remove('dividends.xlsx')     
+        return 'Upload to Google Drive COMPLETE'
 
 print(getDividend(TickerList))
