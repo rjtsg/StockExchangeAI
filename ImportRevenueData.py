@@ -7,15 +7,15 @@ from pydrive.drive import GoogleDrive
 import time
 import lxml
 
-gauth = GoogleAuth()
-gauth.LocalWebserverAuth()
-drive = GoogleDrive(gauth)
+#gauth = GoogleAuth()
+#gauth.LocalWebserverAuth()
+#drive = GoogleDrive(gauth)
 
 BeginYear = 2019
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 
-def getRev(TickerList,TickerName,BeginYear):
+def getRev(TickerList,TickerName,BeginYear,drive):
 
     Dates = list()
     EndYear = 2005
@@ -61,4 +61,4 @@ def getRev(TickerList,TickerName,BeginYear):
     file1 = drive.CreateFile() #can be commented if it works without for you
     os.remove('RevenueData.xlsx')
            
-getRev(TickerList,TickerName,BeginYear)
+#getRev(TickerList,TickerName,BeginYear)

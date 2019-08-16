@@ -7,16 +7,16 @@ from pydrive.drive import GoogleDrive
 import time
 import lxml
 
-gauth = GoogleAuth()
-gauth.LocalWebserverAuth()
-drive = GoogleDrive(gauth)
+#gauth = GoogleAuth()
+#gauth.LocalWebserverAuth()
+#drive = GoogleDrive(gauth)
 
 
 BeginYear = 2019
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 
-def getPER(TickerList,TickerName,BeginYear):
+def getPER(TickerList,TickerName,BeginYear,drive):
     Dates = list()
     EndYear = 2006
     I = 0
@@ -70,8 +70,8 @@ def getPER(TickerList,TickerName,BeginYear):
     file1 = drive.CreateFile()
     file1.SetContentFile('PERData.xlsx')
     file1.Upload()
-    print('Upload to the drive is succesful')
+    print('Per share earnings upload to the drive is succesful')
     file1 = drive.CreateFile()#can be commented if it works without for you
     os.remove('PERData.xlsx')
     
-getPER(TickerList,TickerName,BeginYear)
+#getPER(TickerList,TickerName,BeginYear)
