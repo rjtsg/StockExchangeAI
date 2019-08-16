@@ -16,9 +16,10 @@ TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 def getDividend(TickerList,excelfile=None):
         if excelfile == None:
                 df = pd.DataFrame()
+                newFile = True
         else:
                 df = pd.read_excel(excelfile)
-                print('test')
+                newFile = False
         for i in range(0,len(TickerList)):
                 x = TickerList[i]
                 url = 'https://query1.finance.yahoo.com/v8/finance/chart/{}?symbol={}&period1=0&period2=9999999999&interval=1mo&events=div'.format(x,x)
@@ -28,6 +29,8 @@ def getDividend(TickerList,excelfile=None):
                 soupList = re.findall(r'{"amount.*?}', str(soup))
                 searchDiv = re.compile(r':.*?,')
                 searchDat = re.compile(r'e":.*?}')
+                if not newFile:
+                        indxfir = df[x].first_valid_index()
                 for j in range(0,len(soupList)):
                         divi = searchDiv.search(str(soupList[j])).group()[1:-1]
                         datum = searchDat.search(str(soupList[j])).group()[3:-1]
@@ -50,20 +53,46 @@ def getDividend(TickerList,excelfile=None):
                                 else:
                                         datum = 'Q4 ' + str(int(datum.strftime("%Y")))
 
-
-                        if i==0:
-                                df.loc[j,'date'] = datum
-                                df.loc[j,x] = float(divi)
-                        else:
-                                if (datum in df.loc[:,'date'].values):
-                                        indx = df.index[df['date']==datum]
-                                        df.loc[indx,x] = float(divi)
-                                        
+                        if newFile:
+                                if i==0:
+                                        df.loc[j,'date'] = datum
+                                        df.loc[j,x] = float(divi)
                                 else:
-                                       lenDF = len(df) 
-                                       df.loc[lenDF] = 'NaN'
-                                       df.loc[lenDF,'date'] = datum
-                                       df.loc[lenDF,x] = float(divi)                           
+                                        if (datum in df.loc[:,'date'].values):
+                                                indx = df.index[df['date']==datum]
+                                                df.loc[indx,x] = float(divi)
+                                        else:
+                                                lenDF = len(df) 
+                                                df.loc[lenDF] = 'NaN'
+                                                df.loc[lenDF,'date'] = datum
+                                                df.loc[lenDF,x] = float(divi) 
+                        else:
+                                if x in df.columns:
+                                        if int(df.loc[indxfir,'date'][-4:]) <= int(datum[-4:]):
+                                                if (datum in df.loc[:,'date'].values):
+                                                        indx = df.index[df['date']==datum]
+
+                                                        if df.loc[indx,x].values != float(divi):
+                                                                df.loc[indx,x] = float(divi)                
+                                                else:
+                                                        lenDF = len(df) 
+                                                        df.loc[lenDF] = 'NaN'
+                                                        df.loc[lenDF,'date'] = datum
+                                                        df.loc[lenDF,x] = float(divi) 
+                                else:
+                                        if (datum in df.loc[:,'date'].values):
+                                                indx = df.index[df['date']==datum]
+                                                df.loc[indx,x] = float(divi)
+                                        else:
+                                                lenDF = len(df) 
+                                                df.loc[lenDF] = 'NaN'
+                                                df.loc[lenDF,'date'] = datum
+                                                df.loc[lenDF,x] = float(divi) 
+
+
+
+
+                                
         duplicates = df[df.duplicated(['date'])]
         for z in range(0,len(duplicates)): 
                 indx1 = df.index[df['date']==duplicates.iloc[z,0]]   
@@ -72,7 +101,7 @@ def getDividend(TickerList,excelfile=None):
                                   
         df = df.set_index('date')
         df = df.reindex(sorted(df.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
-        df.to_excel('dividends.xlsx')   
+        df.to_excel('dividends.xlsx')
         file = drive.CreateFile()
         file.SetContentFile('dividends.xlsx')
         file.Upload()
@@ -80,3 +109,4 @@ def getDividend(TickerList,excelfile=None):
         return 'Upload to Google Drive COMPLETE'
 
 print(getDividend(TickerList))
+#print(getDividend(TickerList,'testfile.xlsx'))
