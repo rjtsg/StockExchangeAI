@@ -13,9 +13,11 @@ drive = GoogleDrive(gauth)
 
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 
-def getDividend(TickerList):
-        df = pd.DataFrame()
-        print(df)
+def getDividend(TickerList,excelfile=None):
+        if excelfile == None:
+                df = pd.DataFrame()
+        else:
+                df = pd.read_excel(excelfile)
         for i in range(0,len(TickerList)):
                 x = TickerList[i]
                 url = 'https://query1.finance.yahoo.com/v8/finance/chart/{}?symbol={}&period1=0&period2=9999999999&interval=1mo&events=div'.format(x,x)
