@@ -14,7 +14,6 @@ drive = GoogleDrive(gauth)
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 
 def getDividend(TickerList,excelfile=None):
-        newFile = True
         if excelfile == None:
                 df = pd.DataFrame()
                 newFile = True
@@ -30,7 +29,8 @@ def getDividend(TickerList,excelfile=None):
                 soupList = re.findall(r'{"amount.*?}', str(soup))
                 searchDiv = re.compile(r':.*?,')
                 searchDat = re.compile(r'e":.*?}')
-                indxfir = df[x].first_valid_index()
+                if not newFile:
+                        indxfir = df[x].first_valid_index()
                 for j in range(0,len(soupList)):
                         divi = searchDiv.search(str(soupList[j])).group()[1:-1]
                         datum = searchDat.search(str(soupList[j])).group()[3:-1]
@@ -102,11 +102,11 @@ def getDividend(TickerList,excelfile=None):
         df = df.set_index('date')
         df = df.reindex(sorted(df.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
         df.to_excel('dividends.xlsx')
-        df.to_excel('testfiledividends.xlsx')   
         file = drive.CreateFile()
         file.SetContentFile('dividends.xlsx')
         file.Upload()
         os.remove('dividends.xlsx')     
         return 'Upload to Google Drive COMPLETE'
 
-print(getDividend(TickerList,'testfile.xlsx'))
+print(getDividend(TickerList))
+#print(getDividend(TickerList,'testfile.xlsx'))
