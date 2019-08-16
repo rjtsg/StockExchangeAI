@@ -36,15 +36,16 @@ def getDataFrameStock(ticker):
         if file1['title']==filename:
             file2 = drive.CreateFile({'id':file1['id']})
             file2.GetContentFile(filename)
-            df = pd.read_excel(filename, index_col=1).iloc[:,1:]
-            df['close/open'] = df.loc[:,'close']/df.loc[:,'open']
-            df['open/close'] = df.loc[:,'open']/df.loc[:,'close'].shift(1)
+            df = pd.read_excel(filename, index_col=0)
+            print(df)
+            df['Close/Open'] = df.loc[:,'Close']/df.loc[:,'Open']
+            df['Open/Close'] = df.loc[:,'Open']/df.loc[:,'Close'].shift(1)
             os.remove(filename)
             return df
 
 #printData = getDataFrameStock('V')
 
-# print(printData.head())
+#print(printData.head())
 # print('--------------------')            
 # print(printData.iloc[-5:-1,:])
 
