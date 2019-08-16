@@ -36,7 +36,12 @@ def getDividend(TickerList):
                         elif (int(datum.strftime("%m")) in range(8,11)): 
                                 datum = 'Q3 ' + str(int(datum.strftime("%Y")))
                         else:
-                                datum = 'Q4 ' + str(int(datum.strftime("%Y")))
+                                if int(datum.strftime("%m")) == 1:
+                                        datum = 'Q4 ' + str(int(datum.strftime("%Y"))-1)
+                                else:
+                                        datum = 'Q4 ' + str(int(datum.strftime("%Y")))
+
+
                         if i==0:
                                 df.loc[j,'date'] = datum
                                 df.loc[j,x] = float(divi)
@@ -62,4 +67,4 @@ def getDividend(TickerList):
         df.to_excel('dividends.xlsx')        
         return 'Done'
 
-#print(getDividend(TickerList))
+print(getDividend(TickerList))
