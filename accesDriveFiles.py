@@ -3,12 +3,12 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import os
 
+gauth = GoogleAuth()
+gauth.LocalWebserverAuth()
+drive = GoogleDrive(gauth)
+
 
 def getFileDrive(filename):
-    gauth = GoogleAuth()
-    gauth.LocalWebserverAuth()
-    drive = GoogleDrive(gauth)
-
     filename = '{}.xlsx'.format(filename)
     file_list = drive.ListFile({'q': "'root' in parents and trashed=false"}).GetList()
     for file1 in file_list:
@@ -20,24 +20,16 @@ def getFileDrive(filename):
             return df
 
 def delFileDrive(filename):
-    gauth = GoogleAuth()
-    gauth.LocalWebserverAuth()
-    drive = GoogleDrive(gauth)
-
     filename = '{}.xlsx'.format(filename)
     file_list = drive.ListFile({'q': "'root' in parents and trashed=false"}).GetList()
     for file1 in file_list:
         if file1['title']==filename:
             file2 = drive.CreateFile({'id':file1['id']})
             file2.Delete()
-            return 'Done'
+            return '{} deleted'.format(filename)
 
 
 def getDataFrameStock(ticker):
-    gauth = GoogleAuth()
-    gauth.LocalWebserverAuth()
-    drive = GoogleDrive(gauth)
-
     filename = 'StockData_{}.xlsx'.format(ticker)
     file_list = drive.ListFile({'q': "'root' in parents and trashed=false"}).GetList()
     for file1 in file_list:
