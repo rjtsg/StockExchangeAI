@@ -69,7 +69,6 @@ def getDividend(TickerList):
                                   
         df = df.set_index('date')
         df = df.reindex(sorted(df.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
-        print(df.head())
         df.to_excel('dividends.xlsx')   
         file = drive.CreateFile()
         file.SetContentFile('dividends.xlsx')
