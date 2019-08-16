@@ -13,13 +13,13 @@ drive = GoogleDrive(gauth)
 
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 
-def getDividend(TickerList,excelfile=None):
-        if excelfile == None:
+def getDividend(TickerList,dataframe=None):
+        if dataframe is not None:
+                df = dataframe
+                newFile = False
+        else:
                 df = pd.DataFrame()
                 newFile = True
-        else:
-                df = pd.read_excel(excelfile)
-                newFile = False
         for i in range(0,len(TickerList)):
                 x = TickerList[i]
                 url = 'https://query1.finance.yahoo.com/v8/finance/chart/{}?symbol={}&period1=0&period2=9999999999&interval=1mo&events=div'.format(x,x)
@@ -108,5 +108,5 @@ def getDividend(TickerList,excelfile=None):
         os.remove('dividends.xlsx')     
         return 'Upload to Google Drive COMPLETE'
 
-print(getDividend(TickerList))
+#print(getDividend(TickerList))
 #print(getDividend(TickerList,'testfile.xlsx'))
