@@ -7,6 +7,8 @@ import yfinance as yf
 
 tickers=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 
+
+
 def getStockInfo(x): #Needs to be a string
         tickr = yf.Ticker(x)
         df = tickr.history(period="max")
