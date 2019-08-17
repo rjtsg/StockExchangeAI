@@ -7,10 +7,6 @@ import yfinance as yf
 
 tickers=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 
-
-
-
-
 def getStockInfo(x): #Needs to be a string
         tickr = yf.Ticker(x)
         df = tickr.history(period="max")
@@ -25,8 +21,6 @@ def saveStockInfo(TickerList): #Needs to be a list
         df.to_excel('StockData_{}.xlsx'.format(x))
         print(x)
         return 'Saved to local folder'
-
-
 
 def saveStockToDrive(TickerList): #Needs to be a list
     gauth = GoogleAuth()
