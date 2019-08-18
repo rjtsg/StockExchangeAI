@@ -11,29 +11,17 @@ import lxml
 #gauth.LocalWebserverAuth()
 #drive = GoogleDrive(gauth)
 
-BeginYear = 2019
+#BeginYear = 2019
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 
-def getDER(TickerList,TickerName,BeginYear,drive):
-
-    Dates = list()
-    EndYear = 2005
-    I = 0
-    J = 4
-    jaar = BeginYear
-
-    while jaar >= EndYear:
-        Dates.append('Q{} {}'.format(J,jaar))
-        J -= 1
-        if J == 0:
-            jaar -= 1
-            J = 4
-
-    df = pd.DataFrame({'Date':Dates})
-
-    for i in TickerList: #makes columns for the ESP input
-        df['DER_{}'.format(i)] = 'NaN'
+def getDER(TickerList,TickerName,dataframe=None):
+    if dataframe is not None:
+        df = dataframe
+        newFile = False
+    else:
+        df = pd.DataFrame()
+        newFile = True
 
     for i in range(0,len(TickerList)): #Fills in the EPS column for each company
         x = TickerList[i]
@@ -45,6 +33,8 @@ def getDER(TickerList,TickerName,BeginYear,drive):
         list2 = soup.findAll('tr')
         Search1 = re.compile(r'(\d\d\d\d)-(\d\d)-(\d\d)')
         Search2 = re.compile(r'\d{1,}\.\d{2}')
+        if not newFile:
+            indxfir = df[x].first_valid_index()
         for j in range(0,len(list2)):
             mo1 = Search1.search(str(list2[j]))
             if mo1 != None:
@@ -62,16 +52,44 @@ def getDER(TickerList,TickerName,BeginYear,drive):
                 else:
                     print(mo1.group(2))
                     print('Something has gone wrong')
-                dfb = next(iter(df[df['Date']== quart].index), 'no match')
-                df['DER_{}'.format(x)][dfb] = mo2[-1]
+                if newFile:
+                    if i == 0:
+                        df.loc[j,'Date'] = quart
+                        df.loc[j,x] = mo2[-1]
+                    else:
+                        if (quart in df.loc[:,'Date'].values):
+                            indx = df.index[df['Date']==quart]
+                            df.loc[j,x] = mo2[-1]
+                else:
+                    if x in df.columns:
+                        if int(df.loc[indxfir,'Date'][-4:]) <= int(quart[-4:]):
+                            if (quart in df.loc[:,'Date'].values):
+                                indx = df.index[df['Date']==quart]
+                                if df.loc[indx,x].values != mo2[-1]:
+                                    df.loc[indx,x] = mo2[-1]                
+                            else:
+                                lenDF = len(df) 
+                                df.loc[lenDF] = 'NaN'
+                                df.loc[lenDF,'Date'] = quart
+                                df.loc[lenDF,x] = mo2[-1] 
+                    else:
+                        if (quart in df.loc[:,'Date'].values):
+                            indx = df.index[df['Date']==quart]
+                            df.loc[indx,x] = mo2[-1]
+                        else:
+                            lenDF = len(df) 
+                            df.loc[lenDF] = 'NaN'
+                            df.loc[lenDF,'Date'] = quart
+                            df.loc[lenDF,x] = mo2[-1]
+                    
                 
 
     df.to_excel('DERData.xlsx')
-    file1 = drive.CreateFile()
-    file1.SetContentFile('DERData.xlsx')
-    file1.Upload()
+    #file1 = drive.CreateFile()
+    #file1.SetContentFile('DERData.xlsx')
+    #file1.Upload()
     print('Upload to the drive is succesful')
-    file1 = drive.CreateFile()#can be commented if it works without for you
-    os.remove('DERData.xlsx')
+    #file1 = drive.CreateFile()#can be commented if it works without for you
+    #os.remove('DERData.xlsx')
 
-#getDER(TickerList,TickerName,BeginYear)
+getDER(TickerList,TickerName)

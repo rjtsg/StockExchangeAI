@@ -16,7 +16,7 @@ import lxml
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 
-def getPER(TickerList,TickerName,dataframe=None):
+def getPER(TickerList,TickerName,dataframe=None,drive):
     if dataframe is not None:
         df = dataframe
         newFile = False
@@ -61,6 +61,11 @@ def getPER(TickerList,TickerName,dataframe=None):
                         if (quart in df.loc[:,'Date'].values):
                             indx = df.index[df['Date']==quart]
                             df.loc[j,x] = mo2[-1]
+                        else:
+                                lenDF = len(df) 
+                                df.loc[lenDF] = 'NaN'
+                                df.loc[lenDF,'Date'] = quart
+                                df.loc[lenDF,x] = mo2[-1] 
                 else:
                     if x in df.columns:
                         if int(df.loc[indxfir,'Date'][-4:]) <= int(quart[-4:]):
@@ -84,15 +89,12 @@ def getPER(TickerList,TickerName,dataframe=None):
                             df.loc[lenDF,x] = mo2[-1]
                         
     df.to_excel('PERData.xlsx')
-    #file1 = drive.CreateFile()
-    #file1.SetContentFile('PERData.xlsx')
-    #file1.Upload()
+    file1 = drive.CreateFile()
+    file1.SetContentFile('PERData.xlsx')
+    file1.Upload()
     print('Per share earnings upload to the drive is succesful')
-    #file1 = drive.CreateFile()#can be commented if it works without for you
-    #os.remove('PERData.xlsx')
-    #print(df.duplicated(['Date']))
-    return df
+    file1 = drive.CreateFile()#can be commented if it works without for you
+    os.remove('PERData.xlsx')
+    
 
-#df1 = pd.read_excel('PERDataTest.xlsx')
-#df1.drop([0])
-df = getPER(TickerList,TickerName)
+#getPER(TickerList,TickerName)

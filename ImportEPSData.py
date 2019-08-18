@@ -15,25 +15,14 @@ BeginYear = 2019
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 
-def getEPS(TickerList,TickerName,BeginYear,drive):
+def getEPS(TickerList,TickerName,dataframe=None,drive):
 
-    Dates = list()
-    EndYear = 2005
-    I = 0
-    J = 4
-    jaar = BeginYear
-
-    while jaar >= EndYear:
-        Dates.append('Q{} {}'.format(J,jaar))
-        J -= 1
-        if J == 0:
-            jaar -= 1
-            J = 4
-
-    df1 = pd.DataFrame({'Date':Dates})
-
-    for i in TickerList: #makes columns for the ESP input
-        df1['ESP_{}'.format(i)] = 'NaN'
+    if dataframe is not None:
+        df = dataframe
+        newFile = False
+    else:
+        df = pd.DataFrame()
+        newFile = True
 
     for i in range(0,len(TickerList)): #Fills in the EPS column for each company
         x = TickerList[i]
@@ -45,14 +34,48 @@ def getEPS(TickerList,TickerName,BeginYear,drive):
         list2 = soup.findAll('tr')
         Search = re.compile(r'Q\d \d\d\d\d') #Search regex for Quarters
         Search2 = re.compile(r'\$\-?\d{1,}.\d{2}') #Search regex for EPS
-        for i in range(0,len(list2)):
-            mo1 = Search.search(str(list2[i])[35:42])
+        if not newFile:
+            indxfir = df[x].first_valid_index()
+        for j in range(0,len(list2)):
+            mo1 = Search.search(str(list2[j])[35:42])
             if mo1 != None:
-                mo2 = Search2.search(str(list2[i]))
-                dfb = next(iter(df1[df1['Date']== mo1.group() ].index), 'no match') #Searches for the matching Quarter, this is untested
-                df1['ESP_{}'.format(x)][dfb] = mo2.group() #Places it at the right place
-            
-    df1.to_excel('EPSDATA.xlsx')
+                mo2 = Search2.search(str(list2[j]))
+                quart = mo1.group()
+                if newFile:
+                    if i == 0:
+                        df.loc[j,'Date'] = quart
+                        df.loc[j,x] = mo2.group()
+                    else:
+                        if (quart in df.loc[:,'Date'].values):
+                            indx = df.index[df['Date']==quart]
+                            df.loc[indx,x] = mo2.group()
+                        else:
+                            lenDF = len(df) 
+                            df.loc[lenDF] = 'NaN'
+                            df.loc[lenDF,'Date'] = quart
+                            df.loc[lenDF,x] = mo2.group() 
+                else:
+                    if x in df.columns:
+                        if int(df.loc[indxfir,'Date'][-4:]) <= int(quart[-4:]):
+                            if (quart in df.loc[:,'Date'].values):
+                                indx = df.index[df['Date']==quart]
+                                if df.loc[indx,x].values != mo2.group():
+                                    df.loc[indx,x] = mo2.group()               
+                            else:
+                                lenDF = len(df) 
+                                df.loc[lenDF] = 'NaN'
+                                df.loc[lenDF,'Date'] = quart
+                                df.loc[lenDF,x] = mo2.group()
+                    else:
+                        if (quart in df.loc[:,'Date'].values):
+                            indx = df.index[df['Date']==quart]
+                            df.loc[indx,x] = mo2.group()
+                        else:
+                            lenDF = len(df) 
+                            df.loc[lenDF] = 'NaN'
+                            df.loc[lenDF,'Date'] = quart
+                            df.loc[lenDF,x] = mo2.group()
+    df.to_excel('EPSDATA.xlsx')
     file1 = drive.CreateFile()
     file1.SetContentFile('EPSDATA.xlsx')
     file1.Upload()
@@ -60,4 +83,4 @@ def getEPS(TickerList,TickerName,BeginYear,drive):
     file1 = drive.CreateFile() #can be commented if it works without for you
     os.remove('EPSData.xlsx')
 
-#getEPS(TickerList,TickerName,BeginYear)
+#getEPS(TickerList,TickerName)
