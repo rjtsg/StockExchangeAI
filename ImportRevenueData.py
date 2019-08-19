@@ -14,7 +14,7 @@ import lxml
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 
-def getRev(TickerList,TickerName,dataframe=None,drive):
+def getRev(TickerList,TickerName,drive,dataframe=None):
 
     if dataframe is not None:
         df = dataframe

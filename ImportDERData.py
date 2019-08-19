@@ -15,7 +15,7 @@ import lxml
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 
-def getDER(TickerList,TickerName,dataframe=None):
+def getDER(TickerList,TickerName,drive,dataframe=None):
     if dataframe is not None:
         df = dataframe
         newFile = False
@@ -92,4 +92,4 @@ def getDER(TickerList,TickerName,dataframe=None):
     #file1 = drive.CreateFile()#can be commented if it works without for you
     #os.remove('DERData.xlsx')
 
-getDER(TickerList,TickerName)
+#getDER(TickerList,TickerName)

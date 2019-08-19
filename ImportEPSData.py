@@ -15,7 +15,7 @@ BeginYear = 2019
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 
-def getEPS(TickerList,TickerName,dataframe=None,drive):
+def getEPS(TickerList,TickerName,drive,dataframe=None):
 
     if dataframe is not None:
         df = dataframe
@@ -23,7 +23,8 @@ def getEPS(TickerList,TickerName,dataframe=None,drive):
     else:
         df = pd.DataFrame()
         newFile = True
-
+    k = 0
+    
     for i in range(0,len(TickerList)): #Fills in the EPS column for each company
         x = TickerList[i]
         y = TickerName[i]
@@ -43,8 +44,11 @@ def getEPS(TickerList,TickerName,dataframe=None,drive):
                 quart = mo1.group()
                 if newFile:
                     if i == 0:
-                        df.loc[j,'Date'] = quart
-                        df.loc[j,x] = mo2.group()
+                        df.loc[k,'Date'] = quart
+                        df.loc[k,x] = mo2.group()
+                        #print(quart)
+                        #print(mo2.group())
+                        k+=1
                     else:
                         if (quart in df.loc[:,'Date'].values):
                             indx = df.index[df['Date']==quart]
@@ -53,7 +57,9 @@ def getEPS(TickerList,TickerName,dataframe=None,drive):
                             lenDF = len(df) 
                             df.loc[lenDF] = 'NaN'
                             df.loc[lenDF,'Date'] = quart
-                            df.loc[lenDF,x] = mo2.group() 
+                            df.loc[lenDF,x] = mo2.group()
+                            #print(mo2.group())
+                            #print(quart)
                 else:
                     if x in df.columns:
                         if int(df.loc[indxfir,'Date'][-4:]) <= int(quart[-4:]):
@@ -75,6 +81,8 @@ def getEPS(TickerList,TickerName,dataframe=None,drive):
                             df.loc[lenDF] = 'NaN'
                             df.loc[lenDF,'Date'] = quart
                             df.loc[lenDF,x] = mo2.group()
+    df = df.set_index('Date')
+    df = df.reindex(sorted(df.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
     df.to_excel('EPSDATA.xlsx')
     file1 = drive.CreateFile()
     file1.SetContentFile('EPSDATA.xlsx')
@@ -82,5 +90,5 @@ def getEPS(TickerList,TickerName,dataframe=None,drive):
     print('Upload to the drive is succesful')
     file1 = drive.CreateFile() #can be commented if it works without for you
     os.remove('EPSData.xlsx')
-
+    return df
 #getEPS(TickerList,TickerName)

@@ -16,7 +16,7 @@ import lxml
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 
-def getPER(TickerList,TickerName,dataframe=None,drive):
+def getPER(TickerList,TickerName,drive,dataframe=None):
     if dataframe is not None:
         df = dataframe
         newFile = False
