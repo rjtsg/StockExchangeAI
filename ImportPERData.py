@@ -16,14 +16,14 @@ import lxml
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 
-def getPER(TickerList,TickerName,drive,dataframe=None):
+def getPER(TickerList,TickerName,dataframe=None):
     if dataframe is not None:
         df = dataframe
         newFile = False
     else:
         df = pd.DataFrame()
         newFile = True
-
+    lenDFtick = 2
     for i in range(0,len(TickerList)): #Fills in the EPS column for each company
         x = TickerList[i]
         y = TickerName[i]
@@ -60,12 +60,16 @@ def getPER(TickerList,TickerName,drive,dataframe=None):
                     else:
                         if (quart in df.loc[:,'Date'].values):
                             indx = df.index[df['Date']==quart]
-                            df.loc[j,x] = mo2[-1]
+                            df.loc[indx,x] = mo2[-1]
                         else:
-                                lenDF = len(df) 
-                                df.loc[lenDF] = 'NaN'
-                                df.loc[lenDF,'Date'] = quart
-                                df.loc[lenDF,x] = mo2[-1] 
+                            
+                            lenDF = len(df) + lenDFtick
+                            #print('else',lenDF)
+                            #df.loc[lenDF] = 'NaN'
+                            df.loc[lenDF,'Date'] = quart
+                            df.loc[lenDF,x] = mo2[-1]
+                            lenDFtick += 1
+                            
                 else:
                     if x in df.columns:
                         if int(df.loc[indxfir,'Date'][-4:]) <= int(quart[-4:]):
@@ -87,14 +91,19 @@ def getPER(TickerList,TickerName,drive,dataframe=None):
                             df.loc[lenDF] = 'NaN'
                             df.loc[lenDF,'Date'] = quart
                             df.loc[lenDF,x] = mo2[-1]
-                        
-    df.to_excel('PERData.xlsx')
-    file1 = drive.CreateFile()
-    file1.SetContentFile('PERData.xlsx')
-    file1.Upload()
-    print('Per share earnings upload to the drive is succesful')
-    file1 = drive.CreateFile()#can be commented if it works without for you
-    os.remove('PERData.xlsx')
+        #print(df)
+    df1 = df.set_index('Date')
+    #print(df.index)
+    df1 = df1.reindex(sorted(df1.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
+    df1.to_excel('PERData.xlsx')
+    #file1 = drive.CreateFile()
+    #file1.SetContentFile('PERData.xlsx')
+    #file1.Upload()
+    #print('Per share earnings upload to the drive is succesful')
+    #file1 = drive.CreateFile()#can be commented if it works without for you
+    #os.remove('PERData.xlsx')
+    return df1
     
 
-#getPER(TickerList,TickerName)
+df = getPER(TickerList,TickerName)
+#df = getPER(TickerList[0:7],TickerName[0:7])
