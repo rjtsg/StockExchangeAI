@@ -11,11 +11,10 @@ import lxml
 #gauth.LocalWebserverAuth()
 #drive = GoogleDrive(gauth)
 
-BeginYear = 2019
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 
-def getEPS(TickerList,TickerName,drive,dataframe=None):
+def getEPS(TickerList,TickerName,dataframe=None):
 
     if dataframe is not None:
         df = dataframe
@@ -84,11 +83,11 @@ def getEPS(TickerList,TickerName,drive,dataframe=None):
     df = df.set_index('Date')
     df = df.reindex(sorted(df.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
     df.to_excel('EPSDATA.xlsx')
-    file1 = drive.CreateFile()
-    file1.SetContentFile('EPSDATA.xlsx')
-    file1.Upload()
-    print('Upload to the drive is succesful')
-    file1 = drive.CreateFile() #can be commented if it works without for you
-    os.remove('EPSData.xlsx')
+    #file1 = drive.CreateFile()
+    #file1.SetContentFile('EPSDATA.xlsx')
+    #file1.Upload()
+    #print('Upload to the drive is succesful')
+    #file1 = drive.CreateFile() #can be commented if it works without for you
+    #os.remove('EPSData.xlsx')
     return df
-#getEPS(TickerList,TickerName)
+df = getEPS(TickerList,TickerName)

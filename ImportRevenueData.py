@@ -14,7 +14,7 @@ import lxml
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 
-def getRev(TickerList,TickerName,drive,dataframe=None):
+def getRev(TickerList,TickerName,dataframe=None):
 
     if dataframe is not None:
         df = dataframe
@@ -75,12 +75,14 @@ def getRev(TickerList,TickerName,drive,dataframe=None):
                                 df.loc[lenDF] = 'NaN'
                                 df.loc[lenDF,'Date'] = quart
                                 df.loc[lenDF,x] = mo2.group()
+    df = df.set_index('Date')
+    df = df.reindex(sorted(df.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
     df.to_excel('RevenueDATA.xlsx')
-    file1 = drive.CreateFile()
-    file1.SetContentFile('RevenueDATA.xlsx')
-    file1.Upload()
-    print('Upload to the drive is succesful')
-    file1 = drive.CreateFile() #can be commented if it works without for you
-    os.remove('RevenueData.xlsx')
+    #file1 = drive.CreateFile()
+    #file1.SetContentFile('RevenueDATA.xlsx')
+    #file1.Upload()
+    #print('Upload to the drive is succesful')
+    #file1 = drive.CreateFile() #can be commented if it works without for you
+    #os.remove('RevenueData.xlsx')
            
-#getRev(TickerList,TickerName)
+getRev(TickerList,TickerName)

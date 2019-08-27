@@ -32,7 +32,7 @@ def getDER(TickerList,TickerName,drive,dataframe=None):
         soup = bs4.BeautifulSoup(res.text,'lxml')
         list2 = soup.findAll('tr')
         Search1 = re.compile(r'(\d\d\d\d)-(\d\d)-(\d\d)')
-        Search2 = re.compile(r'\d{1,}\.\d{2}')
+        Search2 = re.compile(r'-?\d{1,}\.\d{2}')
         if not newFile:
             indxfir = df[x].first_valid_index()
         for j in range(0,len(list2)):
