@@ -23,7 +23,6 @@ def getPER(TickerList,TickerName,dataframe=None):
     else:
         df = pd.DataFrame()
         newFile = True
-    lenDFtick = 2
     for i in range(0,len(TickerList)): #Fills in the EPS column for each company
         x = TickerList[i]
         y = TickerName[i]
@@ -63,12 +62,10 @@ def getPER(TickerList,TickerName,dataframe=None):
                             df.loc[indx,x] = mo2[-1]
                         else:
                             
-                            lenDF = len(df) + lenDFtick
-                            #print('else',lenDF)
-                            #df.loc[lenDF] = 'NaN'
+                            lenDF = len(df) + 2 #BUG: Why does this only work with +2???
                             df.loc[lenDF,'Date'] = quart
                             df.loc[lenDF,x] = mo2[-1]
-                            lenDFtick += 1
+                            
                             
                 else:
                     if x in df.columns:
@@ -91,17 +88,9 @@ def getPER(TickerList,TickerName,dataframe=None):
                             df.loc[lenDF] = 'NaN'
                             df.loc[lenDF,'Date'] = quart
                             df.loc[lenDF,x] = mo2[-1]
-        #print(df)
     df1 = df.set_index('Date')
-    #print(df.index)
     df1 = df1.reindex(sorted(df1.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
     df1.to_excel('PERData.xlsx')
-    #file1 = drive.CreateFile()
-    #file1.SetContentFile('PERData.xlsx')
-    #file1.Upload()
-    #print('Per share earnings upload to the drive is succesful')
-    #file1 = drive.CreateFile()#can be commented if it works without for you
-    #os.remove('PERData.xlsx')
     return df1
     
 
