@@ -2,8 +2,8 @@ import requests, bs4, re
 import pandas as pd
 import xlrd
 import os
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
+#from pydrive.auth import GoogleAuth
+#from pydrive.drive import GoogleDrive
 import time
 import lxml
 
@@ -90,4 +90,4 @@ def getEPS(TickerList,TickerName,dataframe=None):
     #file1 = drive.CreateFile() #can be commented if it works without for you
     #os.remove('EPSData.xlsx')
     return df
-df = getEPS(TickerList,TickerName)
+#df = getEPS(TickerList,TickerName)
