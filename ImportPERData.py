@@ -12,29 +12,17 @@ import lxml
 #drive = GoogleDrive(gauth)
 
 
-BeginYear = 2019
+#BeginYear = 2019
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 
-def getPER(TickerList,TickerName,BeginYear,drive):
-    Dates = list()
-    EndYear = 2006
-    I = 0
-    J = 4
-    jaar = BeginYear
-
-    while jaar >= EndYear:
-        Dates.append('Q{} {}'.format(J,jaar))
-        J -= 1
-        if J == 0:
-            jaar -= 1
-            J = 4
-
-    df = pd.DataFrame({'Date':Dates})
-
-    for i in TickerList: #makes columns for the ESP input
-        df['PER_{}'.format(i)] = 'NaN'
-
+def getPER(TickerList,TickerName,dataframe=None):
+    if dataframe is not None:
+        df = dataframe
+        newFile = False
+    else:
+        df = pd.DataFrame()
+        newFile = True
     for i in range(0,len(TickerList)): #Fills in the EPS column for each company
         x = TickerList[i]
         y = TickerName[i]
@@ -45,6 +33,8 @@ def getPER(TickerList,TickerName,BeginYear,drive):
         list2 = soup.findAll('tr')
         Search1 = re.compile(r'(\d\d\d\d)-(\d\d)-(\d\d)')
         Search2 = re.compile(r'\d{1,}\.\d{2}')
+        if not newFile:
+            indxfir = df[x].first_valid_index()
         for j in range(0,len(list2)):
             mo1 = Search1.search(str(list2[j]))
             if mo1 != None:
@@ -62,16 +52,47 @@ def getPER(TickerList,TickerName,BeginYear,drive):
                 else:
                     print(mo1.group(2))
                     print('Something has gone wrong')
-                dfb = next(iter(df[df['Date']== quart].index), 'no match')
-                df['PER_{}'.format(x)][dfb] = mo2[-1]
-                
-
-    df.to_excel('PERData.xlsx')
-    file1 = drive.CreateFile()
-    file1.SetContentFile('PERData.xlsx')
-    file1.Upload()
-    print('Per share earnings upload to the drive is succesful')
-    file1 = drive.CreateFile()#can be commented if it works without for you
-    os.remove('PERData.xlsx')
+                if newFile:
+                    if i == 0:
+                        df.loc[j,'Date'] = quart
+                        df.loc[j,x] = mo2[-1]
+                    else:
+                        if (quart in df.loc[:,'Date'].values):
+                            indx = df.index[df['Date']==quart]
+                            df.loc[indx,x] = mo2[-1]
+                        else:
+                            
+                            lenDF = len(df) + 2 #BUG: Why does this only work with +2???
+                            df.loc[lenDF,'Date'] = quart
+                            df.loc[lenDF,x] = mo2[-1]
+                            
+                            
+                else:
+                    if x in df.columns:
+                        if int(df.loc[indxfir,'Date'][-4:]) <= int(quart[-4:]):
+                            if (quart in df.loc[:,'Date'].values):
+                                indx = df.index[df['Date']==quart]
+                                if df.loc[indx,x].values != mo2[-1]:
+                                    df.loc[indx,x] = mo2[-1]                
+                            else:
+                                lenDF = len(df) 
+                                df.loc[lenDF] = 'NaN'
+                                df.loc[lenDF,'Date'] = quart
+                                df.loc[lenDF,x] = mo2[-1] 
+                    else:
+                        if (quart in df.loc[:,'Date'].values):
+                            indx = df.index[df['Date']==quart]
+                            df.loc[indx,x] = mo2[-1]
+                        else:
+                            lenDF = len(df) 
+                            df.loc[lenDF] = 'NaN'
+                            df.loc[lenDF,'Date'] = quart
+                            df.loc[lenDF,x] = mo2[-1]
+    df1 = df.set_index('Date')
+    df1 = df1.reindex(sorted(df1.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
+    df1.to_excel('PERData.xlsx')
+    return df1
     
-#getPER(TickerList,TickerName,BeginYear)
+
+df = getPER(TickerList,TickerName)
+#df = getPER(TickerList[0:7],TickerName[0:7])
