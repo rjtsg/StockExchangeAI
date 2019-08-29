@@ -21,18 +21,20 @@ if not os.path.exists('DataFiles'): #checks if directory DataFiles exists, if no
     os.makedirs('DataFiles')
     print('Created new DataFiles directory')
 
+maindirectory = os.getcwd() #remembers the path from which the file is run
+firsttime = True 
 for x in DataList:
-    path = 'DataFiles\{}Data.xlsx'.format(x)
-    print(path)
-    Exists = os.path.exists(path)
-    print(Exists)
+    if firsttime:
+        firsttime = False
+        os.chdir('DataFiles') #goes into the DataFiles directory
+    path = '{}Data.xlsx'.format(x) #this is the data file
     if not os.path.exists(path):
         print('{} data does not exists, building a new file'.format(x))
         df = getattr(ImportFile, 'get{}'.format(x))(TickerList,TickerName,path)
     else:
         print('checking and updating {} data'.format(x))
         
-
+os.chdir(maindirectory) #switches back to the path from which we started the run
 
 
 #PERFile = os.path.isfile('PERData.xlsx')
