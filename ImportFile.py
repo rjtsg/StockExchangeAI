@@ -272,8 +272,9 @@ def getDER(TickerList,TickerName,path,dataframe=None):
                     if x in df.columns:
                         if int(df.loc[indxfir,'Date'][-4:]) <= int(quart[-4:]):
                             if (quart in df.loc[:,'Date'].values):
-                                indx = df.index[df['Date']==quart]
-                                if df.loc[indx,x].values != mo2[-1]:
+                                indx = df.index[df['Date']==quart][0]
+                                if df.loc[indx,x] != mo2[-1]:
+                                    #print(indx[0])
                                     df.loc[indx,x] = mo2[-1]                
                             else:
                                 lenDF = len(df) 
@@ -281,8 +282,8 @@ def getDER(TickerList,TickerName,path,dataframe=None):
                                 df.loc[lenDF,'Date'] = quart
                                 df.loc[lenDF,x] = mo2[-1] 
                     else:
-                        if (quart in df.loc[:,'Date'].values):
-                            indx = df.index[df['Date']==quart]
+                        if (quart in df.loc[:,'Date']):
+                            indx = df.index[df['Date']==quart][0]
                             df.loc[indx,x] = mo2[-1]
                         else:
                             lenDF = len(df) 

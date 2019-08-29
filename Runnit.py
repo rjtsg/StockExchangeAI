@@ -24,7 +24,7 @@ if not os.path.exists('DataFiles'): #checks if directory DataFiles exists, if no
 maindirectory = os.getcwd() #remembers the path from which the file is run
 firsttime = True 
 for x in DataList:
-    if firsttime:
+    if firsttime: #such that when it is in the directory it does not keep wanting to go deeper
         firsttime = False
         os.chdir('DataFiles') #goes into the DataFiles directory
     path = '{}Data.xlsx'.format(x) #this is the data file
@@ -33,6 +33,9 @@ for x in DataList:
         df = getattr(ImportFile, 'get{}'.format(x))(TickerList,TickerName,path)
     else:
         print('checking and updating {} data'.format(x))
+        DataFrame = pd.read_excel('{}Data.xlsx'.format(x),index_col=0)
+        df = getattr(ImportFile, 'get{}'.format(x))(TickerList,TickerName,path,DataFrame)
+        
         
 os.chdir(maindirectory) #switches back to the path from which we started the run
 
