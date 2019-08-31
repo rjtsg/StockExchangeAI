@@ -2,8 +2,8 @@ import requests, bs4, re
 import pandas as pd
 import xlrd
 import os
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
+#from pydrive.auth import GoogleAuth
+#from pydrive.drive import GoogleDrive
 import time
 import lxml
 
@@ -11,7 +11,6 @@ import lxml
 #gauth.LocalWebserverAuth()
 #drive = GoogleDrive(gauth)
 
-#BeginYear = 2019
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 

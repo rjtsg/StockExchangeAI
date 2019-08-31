@@ -2,17 +2,10 @@ import requests, bs4, re
 import pandas as pd
 import xlrd
 import os
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
 import time
 import lxml
 
-#gauth = GoogleAuth()
-#gauth.LocalWebserverAuth()
-#drive = GoogleDrive(gauth)
 
-
-#BeginYear = 2019
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 
@@ -69,10 +62,10 @@ def getPER(TickerList,TickerName,dataframe=None):
                             
                 else:
                     if x in df.columns:
-                        if int(df.loc[indxfir,'Date'][-4:]) <= int(quart[-4:]):
+                        if int(df.loc[indxfir,'Date'][-4:]) <= int(quart[-4:]): #checks the year, if smaller or equal to year update.
                             if (quart in df.loc[:,'Date'].values):
-                                indx = df.index[df['Date']==quart]
-                                if df.loc[indx,x].values != mo2[-1]:
+                                indx = df.index[df['Date']==quart][0] #added zero to get the integer, otherwise it will make a new column
+                                if df.loc[indx,x] != mo2[-1]:
                                     df.loc[indx,x] = mo2[-1]                
                             else:
                                 lenDF = len(df) 
@@ -80,8 +73,9 @@ def getPER(TickerList,TickerName,dataframe=None):
                                 df.loc[lenDF,'Date'] = quart
                                 df.loc[lenDF,x] = mo2[-1] 
                     else:
+                        print('new Ticker')
                         if (quart in df.loc[:,'Date'].values):
-                            indx = df.index[df['Date']==quart]
+                            indx = df.index[df['Date']==quart][0] #added zero to get the integer, otherwise it will make a new column
                             df.loc[indx,x] = mo2[-1]
                         else:
                             lenDF = len(df) 
@@ -94,5 +88,5 @@ def getPER(TickerList,TickerName,dataframe=None):
     return df1
     
 
-df = getPER(TickerList,TickerName)
+#df = getPER(TickerList,TickerName)
 #df = getPER(TickerList[0:7],TickerName[0:7])

@@ -2,8 +2,6 @@ import requests, bs4, re
 import pandas as pd
 import xlrd
 import os
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
 import time
 import lxml
 
@@ -85,4 +83,4 @@ def getRev(TickerList,TickerName,dataframe=None):
     #file1 = drive.CreateFile() #can be commented if it works without for you
     #os.remove('RevenueData.xlsx')
            
-getRev(TickerList,TickerName)
+#getRev(TickerList,TickerName)
