@@ -15,7 +15,7 @@ import ImportFile
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 #DataList = ['PERData.xlsx','DERData.xlsx','EPSData.xlsx','RevenueData.xlsx']
-DataList = ['PER','DER','EPS','Revenue','Dividend']
+DataList = ['PER','DER','EPS','Revenue','Dividend','Stock']
 
 if not os.path.exists('DataFiles'): #checks if directory DataFiles exists, if not makes a directory with that name
     os.makedirs('DataFiles')
@@ -28,6 +28,10 @@ for x in DataList:
         firsttime = False
         os.chdir('DataFiles') #goes into the DataFiles directory
     path = '{}Data.xlsx'.format(x) #this is the data file
+
+    if x == 'Stock': #Inside the Stock function the ticker needs to be placed and then the extension
+        path = '{}Data'.format(x) #This does mean that stock data will always be fully updated every time
+
     if not os.path.exists(path):
         print('{} data does not exists, building a new file'.format(x))
         df = getattr(ImportFile, 'get{}'.format(x))(TickerList,TickerName,path)

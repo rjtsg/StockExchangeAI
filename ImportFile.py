@@ -1,6 +1,7 @@
 import requests, bs4, re
 import pandas as pd
 import numpy as np
+import yfinance as yf
 import xlrd
 import os
 import time
@@ -387,6 +388,14 @@ def getDividend(TickerList,TickerName,path,dataframe=None): #it does not need a 
     df = df.set_index('date')
     df = df.reindex(sorted(df.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
     df.to_excel(path)
+    return df
+
+def getStock(TickerList,TickerName,path,dataframe=None): #Needs to be a list
+    for x in TickerList:
+        tickr = yf.Ticker(x)
+        df = tickr.history(period="max")
+        df = df.sort_index(axis=0, ascending=False)
+        df.to_excel(path+'_{}.xlsx'.format(x))
     return df
 
 
