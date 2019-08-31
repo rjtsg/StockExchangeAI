@@ -15,7 +15,7 @@ import ImportFile
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 #DataList = ['PERData.xlsx','DERData.xlsx','EPSData.xlsx','RevenueData.xlsx']
-DataList = ['PER','DER','EPS','Revenue']
+DataList = ['PER','DER','EPS','Revenue','Dividend']
 
 if not os.path.exists('DataFiles'): #checks if directory DataFiles exists, if not makes a directory with that name
     os.makedirs('DataFiles')
