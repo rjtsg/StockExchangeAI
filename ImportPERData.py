@@ -6,16 +6,14 @@ import time
 import lxml
 
 
-TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
-TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
-
-def getPER(TickerList,TickerName,dataframe=None):
+def getPER(TickerList,TickerName,path,dataframe=None):
     if dataframe is not None:
         df = dataframe
         newFile = False
     else:
         df = pd.DataFrame()
         newFile = True
+    PosCount = 0
     for i in range(0,len(TickerList)): #Fills in the EPS column for each company
         x = TickerList[i]
         y = TickerName[i]
@@ -47,17 +45,17 @@ def getPER(TickerList,TickerName,dataframe=None):
                     print('Something has gone wrong')
                 if newFile:
                     if i == 0:
-                        df.loc[j,'Date'] = quart
-                        df.loc[j,x] = mo2[-1]
+                        df.loc[PosCount,'Date'] = quart
+                        df.loc[PosCount,x] = mo2[-1]
+                        PosCount += 1
                     else:
                         if (quart in df.loc[:,'Date'].values):
                             indx = df.index[df['Date']==quart]
                             df.loc[indx,x] = mo2[-1]
                         else:
-                            
-                            lenDF = len(df) + 2 #BUG: Why does this only work with +2???
-                            df.loc[lenDF,'Date'] = quart
-                            df.loc[lenDF,x] = mo2[-1]
+                            df.loc[PosCount,'Date'] = quart
+                            df.loc[PosCount,x] = mo2[-1]
+                            PosCount += 1
                             
                             
                 else:
@@ -82,11 +80,7 @@ def getPER(TickerList,TickerName,dataframe=None):
                             df.loc[lenDF] = 'NaN'
                             df.loc[lenDF,'Date'] = quart
                             df.loc[lenDF,x] = mo2[-1]
-    df1 = df.set_index('Date')
-    df1 = df1.reindex(sorted(df1.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
-    df1.to_excel('PERData.xlsx')
-    return df1
-    
-
-#df = getPER(TickerList,TickerName)
-#df = getPER(TickerList[0:7],TickerName[0:7])
+    df = df.set_index('Date')
+    df = df.reindex(sorted(df.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
+    df.to_excel(path)
+    return df
