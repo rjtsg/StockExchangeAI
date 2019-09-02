@@ -2,26 +2,17 @@ import requests, bs4, re
 import pandas as pd
 import xlrd
 import os
-#from pydrive.auth import GoogleAuth
-#from pydrive.drive import GoogleDrive
 import time
 import lxml
 
-#gauth = GoogleAuth()
-#gauth.LocalWebserverAuth()
-#drive = GoogleDrive(gauth)
-
-TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
-TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
-
-def getDER(TickerList,TickerName,drive,dataframe=None):
+def getDER(TickerList,TickerName,path,dataframe=None):
     if dataframe is not None:
         df = dataframe
         newFile = False
     else:
         df = pd.DataFrame()
         newFile = True
-
+    PosCount = 0
     for i in range(0,len(TickerList)): #Fills in the EPS column for each company
         x = TickerList[i]
         y = TickerName[i]
@@ -53,18 +44,24 @@ def getDER(TickerList,TickerName,drive,dataframe=None):
                     print('Something has gone wrong')
                 if newFile:
                     if i == 0:
-                        df.loc[j,'Date'] = quart
-                        df.loc[j,x] = mo2[-1]
+                        df.loc[PosCount,'Date'] = quart
+                        df.loc[PosCount,x] = mo2[-1]
+                        PosCount += 1
                     else:
                         if (quart in df.loc[:,'Date'].values):
-                            indx = df.index[df['Date']==quart]
-                            df.loc[j,x] = mo2[-1]
+                            indx = df.index[df['Date']==quart][0]
+                            df.loc[indx,x] = mo2[-1]
+                        else:
+                            df.loc[PosCount,'Date'] = quart
+                            df.loc[PosCount,x] = mo2[-1]
+                            PosCount += 1
                 else:
                     if x in df.columns:
                         if int(df.loc[indxfir,'Date'][-4:]) <= int(quart[-4:]):
                             if (quart in df.loc[:,'Date'].values):
-                                indx = df.index[df['Date']==quart]
-                                if df.loc[indx,x].values != mo2[-1]:
+                                indx = df.index[df['Date']==quart][0]
+                                if df.loc[indx,x] != mo2[-1]:
+                                    #print(indx[0])
                                     df.loc[indx,x] = mo2[-1]                
                             else:
                                 lenDF = len(df) 
@@ -72,8 +69,8 @@ def getDER(TickerList,TickerName,drive,dataframe=None):
                                 df.loc[lenDF,'Date'] = quart
                                 df.loc[lenDF,x] = mo2[-1] 
                     else:
-                        if (quart in df.loc[:,'Date'].values):
-                            indx = df.index[df['Date']==quart]
+                        if (quart in df.loc[:,'Date']):
+                            indx = df.index[df['Date']==quart][0]
                             df.loc[indx,x] = mo2[-1]
                         else:
                             lenDF = len(df) 
@@ -81,14 +78,7 @@ def getDER(TickerList,TickerName,drive,dataframe=None):
                             df.loc[lenDF,'Date'] = quart
                             df.loc[lenDF,x] = mo2[-1]
                     
-                
-
-    df.to_excel('DERData.xlsx')
-    #file1 = drive.CreateFile()
-    #file1.SetContentFile('DERData.xlsx')
-    #file1.Upload()
-    print('Upload to the drive is succesful')
-    #file1 = drive.CreateFile()#can be commented if it works without for you
-    #os.remove('DERData.xlsx')
-
-#getDER(TickerList,TickerName)
+    df = df.set_index('Date')
+    df = df.reindex(sorted(df.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
+    df.to_excel(path)
+    return df
