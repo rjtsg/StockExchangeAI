@@ -5,14 +5,7 @@ import os
 import time
 import lxml
 
-#gauth = GoogleAuth()
-#gauth.LocalWebserverAuth()
-#drive = GoogleDrive(gauth)
-
-TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
-TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
-
-def getRev(TickerList,TickerName,dataframe=None):
+def getRevenue(TickerList,TickerName,path,dataframe=None):
 
     if dataframe is not None:
         df = dataframe
@@ -20,7 +13,7 @@ def getRev(TickerList,TickerName,dataframe=None):
     else:
         df = pd.DataFrame()
         newFile = True
-
+    PosCount = 0
     for i in range(0,len(TickerList)): #Fills in the EPS column for each company
         x = TickerList[i]
         y = TickerName[i]
@@ -41,17 +34,18 @@ def getRev(TickerList,TickerName,dataframe=None):
                 if mo2 != None:
                     if newFile:
                         if i == 0:
-                            df.loc[j,'Date'] = quart
-                            df.loc[j,x] = mo2.group()
+                            df.loc[PosCount,'Date'] = quart
+                            df.loc[PosCount,x] = mo2.group()
+                            PosCount += 1
                         else:
                             if (quart in df.loc[:,'Date'].values):
-                                indx = df.index[df['Date']==quart]
+                                indx = df.index[df['Date']==quart][0]
                                 df.loc[indx,x] = mo2.group()
                             else:
-                                lenDF = len(df) 
-                                df.loc[lenDF] = 'NaN'
-                                df.loc[lenDF,'Date'] = quart
-                                df.loc[lenDF,x] = mo2.group() 
+                                df.loc[PosCount,'Date'] = quart
+                                df.loc[PosCount,x] = mo2.group()
+                                PosCount += 1
+                                
                     else:
                         if x in df.columns:
                             if int(df.loc[indxfir,'Date'][-4:]) <= int(quart[-4:]):
@@ -60,7 +54,7 @@ def getRev(TickerList,TickerName,dataframe=None):
                                     if df.loc[indx,x].values != mo2.group():
                                         df.loc[indx,x] = mo2.group()               
                                 else:
-                                    lenDF = len(df) 
+                                    lenDF = len(df)
                                     df.loc[lenDF] = 'NaN'
                                     df.loc[lenDF,'Date'] = quart
                                     df.loc[lenDF,x] = mo2.group()
@@ -75,12 +69,5 @@ def getRev(TickerList,TickerName,dataframe=None):
                                 df.loc[lenDF,x] = mo2.group()
     df = df.set_index('Date')
     df = df.reindex(sorted(df.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
-    df.to_excel('RevenueDATA.xlsx')
-    #file1 = drive.CreateFile()
-    #file1.SetContentFile('RevenueDATA.xlsx')
-    #file1.Upload()
-    #print('Upload to the drive is succesful')
-    #file1 = drive.CreateFile() #can be commented if it works without for you
-    #os.remove('RevenueData.xlsx')
-           
-#getRev(TickerList,TickerName)
+    df.to_excel(path)
+    return df
