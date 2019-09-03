@@ -6,13 +6,13 @@ import time
 import lxml
 
 def getDER(TickerList,TickerName,path,dataframe=None):
-    if dataframe is not None:
+    if dataframe is not None: #loads in the existing file
         df = dataframe
         newFile = False
-    else:
+    else: #builds new Dataframe
         df = pd.DataFrame()
         newFile = True
-    PosCount = 0
+    PosCount = 0 #Keeps track of real index position in the dataframe, because length is taken over all year finds in bs4.
     for i in range(0,len(TickerList)): #Fills in the EPS column for each company
         x = TickerList[i]
         y = TickerName[i]
