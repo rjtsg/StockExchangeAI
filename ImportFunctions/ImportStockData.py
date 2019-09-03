@@ -13,9 +13,11 @@ def getStock(TickerList,TickerName,path,dataframe =None): #TickerListNeeds to be
     for x in TickerList:
         tickr = yf.Ticker(x)
         if newFile:
+                print('Stock data does not exist, building a new file')
                 df = tickr.history(period="max")
                 df = df.sort_index(axis=0, ascending=False)
         else:
+                print('checking and updating stock data')
                 today = datetime.today().strftime('%Y-%m-%d')
                 df1 = tickr.history(start=lastDate, end=today)
                 df1 = df1.sort_index(axis=0, ascending=False)
