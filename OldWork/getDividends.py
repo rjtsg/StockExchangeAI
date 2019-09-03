@@ -101,12 +101,12 @@ def getDividend(TickerList,dataframe=None):
                                   
         df = df.set_index('date')
         df = df.reindex(sorted(df.index, key=lambda x: x.split(' ')[::-1],reverse=True)).reset_index()
-        df.to_excel('dividends.xlsx')
+        df.to_excel('dividends.xlsx')  
         file = drive.CreateFile()
         file.SetContentFile('dividends.xlsx')
         file.Upload()
-        os.remove('dividends.xlsx')     
+        os.remove('dividends.xlsx')   
         return 'Upload to Google Drive COMPLETE'
 
-#print(getDividend(TickerList))
+# print(getDividend(TickerList))
 #print(getDividend(TickerList,'testfile.xlsx'))
