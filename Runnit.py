@@ -6,7 +6,11 @@ import time
 import lxml
 import sys
 
-sys.path.append('ImportFunctions')
+MainDirectory = os.getcwd() #remembers the directory in which Runnit.py starts
+
+sys.path.append('ImportFunctions') #Adds the path to the import functions
+
+##Call here all the import files:
 
 from ImportPERData import getPER
 from ImportDERData import getDER
@@ -15,10 +19,13 @@ from ImportDividendData import getDividend
 from ImportRevenueData import getRevenue
 from ImportStockData import getStock
 
+##Specify all parameters that are needed:
+
 TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
 TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
 DataList = ['PER','DER','EPS','Revenue','Dividend','Stock'] #make sure that these 2 are in the same order
-FunctionList = [getPER,getDER,getEPS,getRevenue,getDividend,getStock]
+FunctionList = [getPER,getDER,getEPS,getRevenue,getDividend,getStock] #This should be fixed and done automatically
+
 
 if not os.path.exists('DataFiles'): #checks if directory DataFiles exists, if not makes a directory with that name
     os.makedirs('DataFiles')
@@ -26,7 +33,7 @@ if not os.path.exists('DataFiles'): #checks if directory DataFiles exists, if no
 
 
 firsttime = True 
-for i in range(0,len(DataList)):
+for i in range(0,len(DataList)): #goes through the Data and Function list to download/update the data files
     x = DataList[i]
     y = FunctionList[i]
     if firsttime: #such that when it is in the directory it does not keep wanting to go deeper
@@ -46,7 +53,7 @@ for i in range(0,len(DataList)):
         df = y(TickerList,TickerName,path,DataFrame)
 
 DataDirectory = os.getcwd() #remembers the path, maybe handy for alter        
-os.chdir(maindirectory) #switches back to the path from which we started the run
+os.chdir(MainDirectory) #switches back to the path from which we started the run
 
 
 
