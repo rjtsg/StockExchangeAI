@@ -1,7 +1,5 @@
 import pandas as pd 
 import urllib.request, io, csv
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
 import os
 import yfinance as yf
 from datetime import datetime
