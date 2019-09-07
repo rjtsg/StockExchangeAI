@@ -21,10 +21,10 @@ from ImportStockData import getStock
 
 ##Specify all parameters that are needed:
 
-TickerList=list(pd.read_excel('tickers.xlsx').iloc[:,0])
-TickerName=list(pd.read_excel('tickers.xlsx').iloc[:,1])
-DataList = ['PER','DER','EPS','Revenue','Dividend','Stock'] #make sure that these 2 are in the same order
-FunctionList = [getPER,getDER,getEPS,getRevenue,getDividend,getStock] #This should be fixed and done automatically
+TickerList=list(pd.read_excel('tickers.xlsx', header=None).iloc[:,0])
+TickerName=list(pd.read_excel('tickers.xlsx', header=None).iloc[:,1])
+DataList = ['PER','DER','EPS','Revenue','Dividend'] + TickerList #make sure that these 2 are in the same order
+FunctionList = [getPER,getDER,getEPS,getRevenue,getDividend] + len(TickerList)*[getStock] #This should be fixed and done automatically
 
 
 if not os.path.exists('DataFiles'): #checks if directory DataFiles exists, if not makes a directory with that name
@@ -41,8 +41,8 @@ for i in range(0,len(DataList)): #goes through the Data and Function list to dow
         os.chdir('DataFiles') #goes into the DataFiles directory
     path = '{}Data.xlsx'.format(x) #this is the data file
 
-    if x == 'Stock': #Inside the Stock function the ticker needs to be placed and then the extension
-        path = '{}Data'.format(x) #This does mean that stock data will always be fully updated every time
+    # if x == 'Stock': #Inside the Stock function the ticker needs to be placed and then the extension
+    #     path = '{}Data'.format(x) #This does mean that stock data will always be fully updated every time
 
     if not os.path.exists(path):
         print('{} data does not exists, building a new file'.format(x))
