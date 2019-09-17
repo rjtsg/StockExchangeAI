@@ -59,9 +59,15 @@ def q_learning_keras(num_episodes=100): #Number of training runs
         Storage = {'AXPShares': 0, #Storage for other stuff
             'Cash': 1000,
             'Old_NetWorth': 1000}
-            
+        if i == 0:
+            start = time.time()    #start timer on first run
         if i % 10 == 0:
-            print("Episode {} of {}".format(i + 1, num_episodes))
+            end = time.time()
+            TimeLeft = (num_episodes-i)*(end-start) #Calculates the estimated time until completion
+            hours, rem = divmod(TimeLeft, 3600)
+            minutes, seconds = divmod(rem, 60)
+            print("Episode {} of {}. Estimated time left {:0>2}:{:0>2}:{:0>2}".format(i + 1, num_episodes, int(hours),int(minutes),int(seconds)))
+            start = time.time()
         done = False
         r_sum = 0 #total reward for 1 training
         while not done: #This plays the game untill it is done
