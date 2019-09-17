@@ -88,6 +88,7 @@ def q_learning_keras(num_episodes=100): #Number of training runs
             days += 1 
             if days == len(df1): #This stops the While loop
                 done = True
+        #From here we save end values to plot and visualize:
         r_avg_list.append(r_sum)
         NumberSharesList.append(Storage['AXPShares'])
         NetWorthList.append(Storage['Old_NetWorth'])
@@ -97,14 +98,17 @@ def q_learning_keras(num_episodes=100): #Number of training runs
     plt.ylabel('Average reward per game')
     plt.xlabel('Number of games')
     plt.show()
-    fig, (ax1, ax2, ax3) = plt.subplots(1,3,sharex=True)
+    fig, (ax1, ax2, ax3) = plt.subplots(3,1,sharex=True)
     ax1.plot(NumberSharesList)
-    #ax1.ylabel('# shares')
+    ax1.set_ylabel('# shares')
+    ax1.set_title('# of shares at the end of a game')
     ax2.plot(NetWorthList)
-    #ax2.ylabel('$')
+    ax2.set_ylabel('$')
+    ax2.set_title('NetWorth at the end of a game')
     ax3.plot(CashList)
-    #ax3.ylabel('$')
-    fig.show()
+    ax3.set_ylabel('$')
+    ax3.set_title('Cash at the end of a game')
+    plt.show()
     for i in range(3):
         print("State {} - action {}".format(i, model.predict(np.identity(3)[i:i + 1])))
     
