@@ -48,10 +48,13 @@ def q_learning_keras(num_episodes=100): #Number of training runs
     model.add(Dense(3, activation='linear')) #3 possible actions to be taken
     model.compile(loss='mse', optimizer='adam', metrics=['mae'])
     # now execute the q learning
-    y = 0.95
+    y = 0.95 
     eps = 0.5
     decay_factor = 0.999
     r_avg_list = []
+    NumberSharesList = []
+    NetWorthList = []
+    CashList = []
     for i in range(num_episodes): #start the training
         eps *= decay_factor
         s = 0 #always start from state 0 (no shares)
@@ -63,7 +66,7 @@ def q_learning_keras(num_episodes=100): #Number of training runs
             start = time.time()    #start timer on first run
         if i % 10 == 0:
             end = time.time()
-            TimeLeft = (num_episodes-i)*(end-start) #Calculates the estimated time until completion
+            TimeLeft = ((num_episodes-i)/10)*(end-start) #Calculates the estimated time until completion
             hours, rem = divmod(TimeLeft, 3600)
             minutes, seconds = divmod(rem, 60)
             print("Episode {} of {}. Estimated time left {:0>2}:{:0>2}:{:0>2}".format(i + 1, num_episodes, int(hours),int(minutes),int(seconds)))
@@ -86,10 +89,22 @@ def q_learning_keras(num_episodes=100): #Number of training runs
             if days == len(df1): #This stops the While loop
                 done = True
         r_avg_list.append(r_sum)
+        NumberSharesList.append(Storage['AXPShares'])
+        NetWorthList.append(Storage['Old_NetWorth'])
+        CashList.append(Storage['Cash'])
+
     plt.plot(r_avg_list)
     plt.ylabel('Average reward per game')
     plt.xlabel('Number of games')
     plt.show()
+    fig, (ax1, ax2, ax3) = plt.subplots(1,3,sharex=True)
+    ax1.plot(NumberSharesList)
+    #ax1.ylabel('# shares')
+    ax2.plot(NetWorthList)
+    #ax2.ylabel('$')
+    ax3.plot(CashList)
+    #ax3.ylabel('$')
+    fig.show()
     for i in range(3):
         print("State {} - action {}".format(i, model.predict(np.identity(3)[i:i + 1])))
     
