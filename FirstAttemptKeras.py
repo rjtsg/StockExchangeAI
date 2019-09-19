@@ -27,7 +27,7 @@ df1 = pd.DataFrame(data=None, columns=df.columns)
 counter = 0
 for i in range(len(df)):
     datecheck = str(df.Date[i])
-    if datecheck[0:4] == '2000':
+    if datecheck[0:4] == '2000' or datecheck[0:4] == '1999' or datecheck[0:4] == '1998':
         df1.loc[datecheck] = df.iloc[i]
         
 #now we will have to flip it in order to make it easier for ourselfs (2000-01-01 is not the start date)
@@ -40,13 +40,17 @@ Define the reward table as a 3x3 matrix where State 1 is having no shares, state
 being able to buy anymore shares. The reward should be something like the Net worth (cash+shares).
 Further build it like the q_learning_keras function in RLtutMLadventuries.py
 """
+# create the keras model
+model = Sequential()
+model.add(InputLayer(batch_input_shape=(1, 3))) #should thus be the 3x1 vector (1,0,0) state0 state1 = (0,1,0) ...
+model.add(Dense(10, activation='sigmoid'))
+#model.add(Dense(100, activation='sigmoid'))
+model.add(Dense(3, activation='linear')) #3 possible actions to be taken
+model.compile(loss='mse', optimizer='adam', metrics=['mae'])
+
 def q_learning_keras(num_episodes=100): #Number of training runs
-    # create the keras model
-    model = Sequential()
-    model.add(InputLayer(batch_input_shape=(1, 3))) #should thus be the 3x1 vector (1,0,0) state0 state1 = (0,1,0) ...
-    model.add(Dense(10, activation='sigmoid'))
-    model.add(Dense(3, activation='linear')) #3 possible actions to be taken
-    model.compile(loss='mse', optimizer='adam', metrics=['mae'])
+    
+    
     # now execute the q learning
     y = 0.95 
     eps = 0.5
@@ -109,11 +113,14 @@ def q_learning_keras(num_episodes=100): #Number of training runs
     ax3.set_ylabel('$')
     ax3.set_title('Cash at the end of a game')
     plt.show()
+    AgentRL = np.ndarray((3,3))
     for i in range(3):
         print("State {} - action {}".format(i, model.predict(np.identity(3)[i:i + 1])))
+        AgentRL[i] =  model.predict(np.identity(3)[i:i + 1])
+        #print(AgentRL)
+    return AgentRL
     
-
-
+    
 def TradeAction(action,Storage,days): #action is the action the agent chooses, while Storage is a dictionary which stores Trading process?
     #action 0 is buying
     #action 1 is selling
@@ -147,4 +154,55 @@ def TradeAction(action,Storage,days): #action is the action the agent chooses, w
 
     return state, reward, Storage
 
-q_learning_keras()
+AgentRL = q_learning_keras()
+print(AgentRL)
+"""
+generate the test year (2001) and see how the model performs on this and compare to anual return of that 
+year for the stock
+"""
+TestYear = pd.DataFrame(data=None, columns=df.columns)
+counter = 0
+for i in range(len(df)):
+    datecheck = str(df.Date[i])
+    if datecheck[0:4] == '2001':
+        TestYear.loc[datecheck] = df.iloc[i]
+
+TestYear = TestYear.iloc[::-1]
+
+#eventually make this into an evaluation function, to make it callable
+SimulationYears = 1
+days = 0 #keeps track of the days
+TestStorage = {'AXPShares': 0, #Storage for other stuff
+            'Cash': 1000,
+            'Old_NetWorth': 1000}
+done = False
+s = 0 #always start from state 0 (no shares)
+while not done: #This plays the game untill it is done
+    a = np.argmax(model.predict(AgentRL[s:s + 1]))
+    print(a,s)
+    new_s, r, TestStorage = TradeAction(a,TestStorage,days) #This does the action So here the function must be called 
+    s = new_s
+    days += 1 
+    if days == len(df1): #This stops the While loop
+        done = True
+
+StartNetWorth = 1000
+TestNetWorth = TestStorage['Old_NetWorth']
+StartClose = TestYear['Close'][0]
+EndClose = TestYear['Close'][-1]
+CAGRAXP = (EndClose/StartClose)**(1/SimulationYears) - 1 #Annual return: https://www.investopedia.com/terms/a/annual-return.asp
+CAGRAgent = (TestNetWorth/StartNetWorth)**(1/SimulationYears) - 1 #annual return of the agent
+print('The annual return of the axp is %.2f percent and the agents annaul return is %.2f percent' % (CAGRAXP, CAGRAgent))
+
+"""
+Model seems to only do the buy action (0) in every state. Which is essentialy do nothing as soon as it runs out of money.
+I think it is mainly do to the stupid states. Maybe Basing the states on previous stock price and current stock price,
+Would be an interesting thing to explorer next. And actually increasing episodes and model size.
+Increasing first layer size to 100 does not seem to cost any more computational power.
+Adding the second layer seems to only slight increase run time, thus computational power?
+1 test with this showed change to action 2 in state 2.
+2nd test does not show this behaviour
+Increasing the amount of years included in the training set increases computation time quite a bit. (every years adds that
+amount of time)
+Error in Trade action for the test... TradeAction should also accept the dataframe that is used.
+"""
