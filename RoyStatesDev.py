@@ -15,6 +15,7 @@ from keras.models import Sequential
 from keras.layers import Dense, InputLayer
 import matplotlib.pylab as plt
 
+import RoyStates
 #load in the AXP data and select data from 2000 to 2001:
 MainDirectory = os.getcwd()
 os.chdir('DataFiles')
@@ -22,7 +23,7 @@ df = pd.read_excel('AXPData.xlsx')
 os.chdir(MainDirectory)
 
 #So now we only want to have the data of 2000-01-01 to 2000-12-31 roughly
-
+num_states = 6
 df1 = pd.DataFrame(data=None, columns=df.columns)
 counter = 0
 for i in range(len(df)):
@@ -43,10 +44,9 @@ Further build it like the q_learning_keras function in RLtutMLadventuries.py
 """
 # create the keras model
 model = Sequential() 
-model.add(InputLayer(batch_input_shape=(1, 3))) #should thus be the 3x1 vector (1,0,0) state0 state1 = (0,1,0) ...
-model.add(Dense(1000, activation='sigmoid'))
-model.add(Dense(1000, activation='sigmoid'))
-model.add(Dense(1000, activation='sigmoid'))
+model.add(InputLayer(batch_input_shape=(1, num_states))) #should thus be the 3x1 vector (1,0,0) state0 state1 = (0,1,0) ...
+model.add(Dense(10, activation='sigmoid'))
+model.add(Dense(10, activation='sigmoid'))
 model.add(Dense(3, activation='linear')) #3 possible actions to be taken
 model.compile(loss='mse', optimizer='adam', metrics=['mae'])
 
@@ -83,12 +83,12 @@ def q_learning_keras(num_episodes=100): #Number of training runs
             if np.random.random() < eps: #this decides the action
                 a = np.random.randint(0, 3) #random action
             else:
-                a = np.argmax(model.predict(np.identity(3)[s:s + 1]))
+                a = np.argmax(model.predict(np.identity(num_states)[s:s + 1]))
             new_s, r, Storage = TradeAction(a,Storage,days,df1) #This does the action So here the function must be called 
-            target = r + y * np.max(model.predict(np.identity(3)[new_s:new_s + 1]))
-            target_vec = model.predict(np.identity(3)[s:s + 1])[0]
+            target = r + y * np.max(model.predict(np.identity(num_states)[new_s:new_s + 1]))
+            target_vec = model.predict(np.identity(num_states)[s:s + 1])[0]
             target_vec[a] = target
-            model.fit(np.identity(3)[s:s + 1], target_vec.reshape(-1, 3), epochs=1, verbose=0)
+            model.fit(np.identity(num_states)[s:s + 1], target_vec.reshape(-1, 3), epochs=1, verbose=0)
             s = new_s
             r_sum += r
             days += 1 
@@ -115,10 +115,10 @@ def q_learning_keras(num_episodes=100): #Number of training runs
     ax3.set_ylabel('$')
     ax3.set_title('Cash at the end of a game')
     plt.show()
-    AgentRL = np.ndarray((3,3))
-    for i in range(3):
-        print("State {} - action {}".format(i, model.predict(np.identity(3)[i:i + 1])))
-        AgentRL[i] =  model.predict(np.identity(3)[i:i + 1])
+    AgentRL = np.ndarray((num_states,3))
+    for i in range(num_states):
+        print("State {} - action {}".format(i, model.predict(np.identity(num_states)[i:i + 1])))
+        AgentRL[i] =  model.predict(np.identity(num_states)[i:i + 1])
         #print(AgentRL)
     return AgentRL
     
@@ -141,13 +141,13 @@ def TradeAction(action,Storage,days,DataFrame): #action is the action the agent 
     #state0 = 2 days ago price is higher
     #state1 = 1 day ago price is higher
     #state2 = prices are equal
-    if DataFrame['Close'].iloc[days-2] > DataFrame['Close'].iloc[days-1] and days >= 2:
-        state = 0
-    elif DataFrame['Close'].iloc[days-2] < DataFrame['Close'].iloc[days-1] and days >= 2:
-        state = 1
-    else:
-        state = 2
-    
+    #if DataFrame['Close'].iloc[days-2] > DataFrame['Close'].iloc[days-1] and days >= 2:
+    #    state = 0
+    #elif DataFrame['Close'].iloc[days-2] < DataFrame['Close'].iloc[days-1] and days >= 2:
+    #    state = 1
+    #else:
+    #    state = 2
+    state = RoyStates.LongTerm(Storage,days,DataFrame)
     #defining hte reward:
     #reward will be given as the difference between previousday networth and thisday networth
     NetWorth = Storage['Cash'] + Storage['AXPShares']*DataFrame['Close'].iloc[days]
@@ -178,9 +178,9 @@ TestStorage = {'AXPShares': 0, #Storage for other stuff
             'Cash': 1000,
             'Old_NetWorth': 1000}
 done = False
-s = 0 #always start from state 0 (no shares)
+s = 5 #always start from state 0 (no shares)
 while not done: #This plays the game untill it is done
-    a = np.argmax(model.predict(np.identity(3)[s:s + 1]))
+    a = np.argmax(model.predict(np.identity(num_states)[s:s + 1]))
     print(a,s)
     new_s, r, TestStorage = TradeAction(a,TestStorage,days,TestYear) #This does the action So here the function must be called 
     s = new_s
