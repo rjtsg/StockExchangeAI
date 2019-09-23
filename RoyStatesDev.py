@@ -199,3 +199,13 @@ print('The annual return of the axp is %.2f percent and the agents annaul return
 """
 Different states can apperently increase computational time pretty hard.
 """
+
+"""
+Just quickly checking what the current training end testing year looks like:
+"""
+"""
+plt.plot(df1['Close'])
+plt.show()
+plt.plot(TestYear['Close'])
+plt.show()
+"""
