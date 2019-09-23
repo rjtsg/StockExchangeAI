@@ -23,7 +23,7 @@ df = pd.read_excel('AXPData.xlsx')
 os.chdir(MainDirectory)
 
 #So now we only want to have the data of 2000-01-01 to 2000-12-31 roughly
-num_states = 36
+num_states = 3
 df1 = pd.DataFrame(data=None, columns=df.columns)
 counter = 0
 for i in range(len(df)):
@@ -45,8 +45,8 @@ Further build it like the q_learning_keras function in RLtutMLadventuries.py
 # create the keras model
 model = Sequential() 
 model.add(InputLayer(batch_input_shape=(1, num_states))) #should thus be the 3x1 vector (1,0,0) state0 state1 = (0,1,0) ...
-model.add(Dense(10, activation='sigmoid'))
-model.add(Dense(10, activation='sigmoid'))
+model.add(Dense(100, activation='sigmoid'))
+model.add(Dense(100, activation='sigmoid'))
 model.add(Dense(3, activation='linear')) #3 possible actions to be taken
 model.compile(loss='mse', optimizer='adam', metrics=['mae'])
 
@@ -147,7 +147,7 @@ def TradeAction(action,Storage,days,DataFrame): #action is the action the agent 
     #    state = 1
     #else:
     #    state = 2
-    state = RoyStates.ShortLongTerm(Storage,days,DataFrame)
+    state = RoyStates.Gradient10(Storage,days,DataFrame)
     #defining hte reward:
     #reward will be given as the difference between previousday networth and thisday networth
     NetWorth = Storage['Cash'] + Storage['AXPShares']*DataFrame['Close'].iloc[days]
@@ -157,7 +157,7 @@ def TradeAction(action,Storage,days,DataFrame): #action is the action the agent 
     return state, reward, Storage
 
 AgentRL = q_learning_keras()
-print(AgentRL)
+#print(AgentRL)
 """
 generate the test year (2001) and see how the model performs on this and compare to anual return of that 
 year for the stock
@@ -178,7 +178,7 @@ TestStorage = {'AXPShares': 0, #Storage for other stuff
             'Cash': 1000,
             'Old_NetWorth': 1000}
 done = False
-s = 5 #always start from state 0 (no shares)
+s = 0 #always start from state 0 (no shares), wierd: how are we gonna do this
 while not done: #This plays the game untill it is done
     a = np.argmax(model.predict(np.identity(num_states)[s:s + 1]))
     print(a,s)

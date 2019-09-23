@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 
-def Example(Storage,days,DataFrame):
+def Example(Storage,days,DataFrame): #3 states
     #state0 = 2 days ago price is higher
     #state1 = 1 day ago price is higher
     #state2 = prices are equal
@@ -14,7 +14,7 @@ def Example(Storage,days,DataFrame):
         state = 2
     return state
 
-def ShortTerm(Storage,days,DataFrame):
+def ShortTerm(Storage,days,DataFrame): #6 states
     closing_price = DataFrame['Close'].iloc[days-1]
     trading_period_short = 5
     list_short = []
@@ -37,7 +37,7 @@ def ShortTerm(Storage,days,DataFrame):
         position_relative_short = 5
     return position_relative_short
 
-def LongTerm(Storage,days,DataFrame):
+def LongTerm(Storage,days,DataFrame): #6 states
     closing_price = DataFrame['Close'].iloc[days-1]
     trading_period_long = 20
     list_long = []
@@ -60,7 +60,7 @@ def LongTerm(Storage,days,DataFrame):
         position_relative_long = 5
     return position_relative_long
 
-def ShortLongTerm(Storage,days,DataFrame):
+def ShortLongTerm(Storage,days,DataFrame): #36 states
     closing_price = DataFrame['Close'].iloc[days-1]
     trading_period_short = 5
     trading_period_long = 20
@@ -114,4 +114,30 @@ def ShortLongTerm(Storage,days,DataFrame):
                     state = StateCount
             StateCount += 1
     
+    return state
+
+def FreeCash(Storage,days,DataFrame): #4 states
+    FreeCash = Storage['Cash']
+    NetWorth = Storage['Old_NetWorth']
+    if FreeCash / NetWorth <= 0.25:
+        state = 0
+    elif FreeCash / NetWorth > 0.25 and FreeCash / NetWorth <= 0.5:
+        state = 1
+    elif FreeCash / NetWorth > 0.5 and FreeCash / NetWorth <= 0.75:
+        state = 2
+    elif FreeCash / NetWorth > 0.75 and FreeCash / NetWorth <= 1:
+        state = 3
+    return state
+
+def Gradient10(Storage,days,DataFrame): #3 states
+    GradientDays = 11
+    HistDay = DataFrame['Close'].iloc[days - GradientDays]
+    CurrDay = DataFrame['Close'].iloc[days - 1]
+    Grad = CurrDay - HistDay
+    if Grad > 0:
+        state = 0
+    elif Grad < 0:
+        state = 1
+    elif Grad == 0:
+        state = 2
     return state
