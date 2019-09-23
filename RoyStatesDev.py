@@ -23,7 +23,7 @@ df = pd.read_excel('AXPData.xlsx')
 os.chdir(MainDirectory)
 
 #So now we only want to have the data of 2000-01-01 to 2000-12-31 roughly
-num_states = 6
+num_states = 36
 df1 = pd.DataFrame(data=None, columns=df.columns)
 counter = 0
 for i in range(len(df)):
@@ -147,7 +147,7 @@ def TradeAction(action,Storage,days,DataFrame): #action is the action the agent 
     #    state = 1
     #else:
     #    state = 2
-    state = RoyStates.LongTerm(Storage,days,DataFrame)
+    state = RoyStates.ShortLongTerm(Storage,days,DataFrame)
     #defining hte reward:
     #reward will be given as the difference between previousday networth and thisday networth
     NetWorth = Storage['Cash'] + Storage['AXPShares']*DataFrame['Close'].iloc[days]
