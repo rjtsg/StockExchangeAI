@@ -47,14 +47,16 @@ Further build it like the q_learning_keras function in RLtutMLadventuries.py
 model = Sequential() 
 model.add(InputLayer(batch_input_shape=(1, num_states))) #should thus be the 3x1 vector (1,0,0) state0 state1 = (0,1,0) ...
 model.add(Dense(150, activation='relu'))
+model.add(Dense(150, activation='relu'))
+model.add(Dense(150, activation='relu'))
 model.add(Dense(3, activation='linear')) #3 possible actions to be taken
 model.compile(loss='mse', optimizer='adam', metrics=['mae'])
 
-def q_learning_keras(num_episodes=20): #Number of training runs
+def q_learning_keras(num_episodes=100000): #Number of training runs
     
     
     # now execute the q learning
-    y = 0.25 
+    y = 0.75 
     eps = 0.5
     decay_factor = 0.999
     r_avg_list = []
