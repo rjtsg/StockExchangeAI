@@ -15,7 +15,7 @@ df = pd.read_excel('AXPData.xlsx')
 os.chdir(MainDirectory)
 
 model = Sequential() 
-model.add(InputLayer(batch_input_shape=(1,3))) #should thus be the 3x1 vector (1,0,0) state0 state1 = (0,1,0) ...
+model.add(InputLayer(batch_input_shape=(1,4))) #should thus be the 3x1 vector (1,0,0) state0 state1 = (0,1,0) ...
 model.add(Dense(100, activation='relu'))
 model.add(Dense(100, activation='relu'))
 model.add(Dense(100, activation='relu'))
@@ -25,7 +25,7 @@ model.compile(loss='mse', optimizer='adam', metrics=['mae'])
 
 #generate dummy data
 import numpy as np
-data = np.random.random((1, 3))
+data = np.random.random((1, 4))
 
 print(model.predict(data))
 action = np.argmax(model.predict(data))
@@ -60,7 +60,7 @@ def TradeAction(action,Storage,days,DataFrame): #action is the action the agent 
             exreward = 0
     else:
         if action == 0 or action == 1:
-            exreward = -1 #stops it from trading with no cash???
+            exreward = -10 #stops it from trading with no cash???
         if action == 2:
             exreward = 0
 
@@ -79,9 +79,25 @@ def TradeAction(action,Storage,days,DataFrame): #action is the action the agent 
     #defining hte reward:
     #reward will be given as the difference between previousday networth and thisday networth
     NetWorth = Storage['Cash'] + Storage['AXPShares']*DataFrame['Close'].iloc[days]
-    reward = NetWorth - Storage['Old_NetWorth'] + exreward
+    #reward = NetWorth - Storage['Old_NetWorth'] + exreward
+    """
+    Some funny way of giving a reward
+    """
+    if Storage['Old_NetWorth'] > NetWorth:
+        reward = 1
+    elif Storage['Old_NetWorth'] < NetWorth:
+        reward = -1
+    else:
+        reward = 0
     Storage['Old_NetWorth'] = NetWorth
 
+    StartWorth = 1000
+    endreward = 0
+    if days == len(DataFrame):
+        if NetWorth > StartWorth:
+            endreward = 100
+    reward = reward + exreward
+    
     return np.array(([state])), reward, Storage
 
 new_s, r, Storage = TradeAction(action, Storage,days,df1)
@@ -97,7 +113,7 @@ target_vec[0][action] = target
 model.fit(new_s,target_vec,epochs=1,verbose=0)
 
 
-def Q_LEARNING(num_episodes=100):
+def Q_LEARNING(num_episodes=1000):
     y = 0.95
     eps = 0.5
     decay_factor = 0.999
@@ -118,7 +134,7 @@ def Q_LEARNING(num_episodes=100):
             print("Episode {} of {}. Estimated time left {:0>2}:{:0>2}:{:0>2}".format(i + 1, num_episodes, int(hours),int(minutes),int(seconds)))
             start = time.time()
         done = False
-        state = np.random.random((1, 3)) #initial
+        state = np.random.random((1, 4)) #initial
         r_sum = 0 #total reward for 1 training
         while not done: #This plays the game untill it is done
             if np.random.random() < eps: #this decides the action
@@ -161,7 +177,7 @@ TestStorage = {'AXPShares': 0, #Storage for other stuff
             'Cash': 1000,
             'Old_NetWorth': 1000}
 done = False
-state = np.random.random((1, 3)) #initial #always start from state 0 (no shares), wierd: how are we gonna do this
+state = np.random.random((1, 4)) #initial #always start from state 0 (no shares), wierd: how are we gonna do this
 while not done: #This plays the game untill it is done
     a = np.argmax(model.predict(state))
     print(a,state)
