@@ -13,7 +13,7 @@ import random
 import time
 from keras.models import Sequential
 from keras.layers import Dense, InputLayer
-import matplotlib.pylab as plt
+import matplotlib.pyplot as plt
 
 import RoyStates
 #load in the AXP data and select data from 2000 to 2001:
@@ -47,13 +47,10 @@ Further build it like the q_learning_keras function in RLtutMLadventuries.py
 model = Sequential() 
 model.add(InputLayer(batch_input_shape=(1, num_states))) #should thus be the 3x1 vector (1,0,0) state0 state1 = (0,1,0) ...
 model.add(Dense(150, activation='relu'))
-model.add(Dense(150, activation='relu'))
-model.add(Dense(150, activation='relu'))
-model.add(Dense(150, activation='relu'))
 model.add(Dense(3, activation='linear')) #3 possible actions to be taken
 model.compile(loss='mse', optimizer='adam', metrics=['mae'])
 
-def q_learning_keras(num_episodes=500): #Number of training runs
+def q_learning_keras(num_episodes=20): #Number of training runs
     
     
     # now execute the q learning
@@ -106,7 +103,7 @@ def q_learning_keras(num_episodes=500): #Number of training runs
     plt.plot(r_avg_list)
     plt.ylabel('Average reward per game')
     plt.xlabel('Number of games')
-    plt.show()
+    plt.savefig('average_reward')
     fig, (ax1, ax2, ax3) = plt.subplots(3,1,sharex=True)
     ax1.plot(NumberSharesList)
     ax1.set_ylabel('# shares')
@@ -117,7 +114,7 @@ def q_learning_keras(num_episodes=500): #Number of training runs
     ax3.plot(CashList)
     ax3.set_ylabel('$')
     ax3.set_title('Cash at the end of a game')
-    plt.show()
+    plt.savefig('shares_netWorth_cash.png')
     AgentRL = np.ndarray((num_states,3))
     for i in range(num_states):
         print("State {} - action {}".format(i, model.predict(np.identity(num_states)[i:i + 1])))
@@ -242,16 +239,16 @@ for i in range(len(df1)):
  pdays.append(i)
 
 plt.plot(pdays,df1['Close'])
-plt.show()
+plt.savefig('closingPrice.png')
 
 fig, ax = plt.subplots()
 
 ax.plot(days,TestYear['Close'],'b-',BuyX,BuyY,'g.',SellX,SellY,'r.')
-plt.show()
+plt.savefig('closingPrice_w_indicator.png')
 
 fig, (ax1, ax2) = plt.subplots(2,1,sharex=True)
 ax1.plot(PlotNetWorth)
 ax2.plot(PlotShares)
 ax1.set_ylabel('Net Worth')
 ax2.set_ylabel('# shares')
-plt.show()
+plt.savefig('shares_netWorth.png')
