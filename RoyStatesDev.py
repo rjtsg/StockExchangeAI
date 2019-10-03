@@ -23,13 +23,14 @@ df = pd.read_excel('AXPData.xlsx')
 os.chdir(MainDirectory)
 
 #So now we only want to have the data of 2000-01-01 to 2000-12-31 roughly
-num_states = 3
+num_states = 144
 df1 = pd.DataFrame(data=None, columns=df.columns)
 counter = 0
 for i in range(len(df)):
     datecheck = str(df.Date[i])
-    if datecheck[0:4] == '2001':
-        df1.loc[datecheck] = df.iloc[i]
+    for j in range(1995,2002):
+        if datecheck[0:4] == str(j):
+            df1.loc[datecheck] = df.iloc[i]
         
 #now we will have to flip it in order to make it easier for ourselfs (2000-01-01 is not the start date)
 df1 = df1.iloc[::-1]
@@ -45,16 +46,18 @@ Further build it like the q_learning_keras function in RLtutMLadventuries.py
 # create the keras model
 model = Sequential() 
 model.add(InputLayer(batch_input_shape=(1, num_states))) #should thus be the 3x1 vector (1,0,0) state0 state1 = (0,1,0) ...
-model.add(Dense(100, activation='sigmoid'))
-model.add(Dense(100, activation='sigmoid'))
+model.add(Dense(150, activation='relu'))
+model.add(Dense(150, activation='relu'))
+model.add(Dense(150, activation='relu'))
+model.add(Dense(150, activation='relu'))
 model.add(Dense(3, activation='linear')) #3 possible actions to be taken
 model.compile(loss='mse', optimizer='adam', metrics=['mae'])
 
-def q_learning_keras(num_episodes=100): #Number of training runs
+def q_learning_keras(num_episodes=500): #Number of training runs
     
     
     # now execute the q learning
-    y = 0.95 
+    y = 0.25 
     eps = 0.5
     decay_factor = 0.999
     r_avg_list = []
@@ -131,11 +134,17 @@ def TradeAction(action,Storage,days,DataFrame): #action is the action the agent 
     if action == 0 and (Storage['Cash']-DataFrame['Close'].iloc[days])>0:
             Storage['AXPShares'] += 1 #for now it only buys one share at a time
             Storage['Cash'] -= DataFrame['Close'].iloc[days] #removing money from cash
+            exreward = 0
     elif action == 1 and Storage['AXPShares'] > 0:
             Storage['AXPShares'] -= 1 #selling 1 share
             Storage['Cash'] += DataFrame['Close'].iloc[days] #adding money to cash
+            exreward = 0
     else:
-        pass
+        if action == 0 or action == 1:
+            exreward = -10 #stops it from trading with no cash???
+        if action == 2:
+            exreward = 0
+
     
     #Now the state has to be defined:
     #state0 = 2 days ago price is higher
@@ -147,11 +156,11 @@ def TradeAction(action,Storage,days,DataFrame): #action is the action the agent 
     #    state = 1
     #else:
     #    state = 2
-    state = RoyStates.Gradient10(Storage,days,DataFrame)
+    state = RoyStates.ShortLongTermCash(Storage,days,DataFrame)
     #defining hte reward:
     #reward will be given as the difference between previousday networth and thisday networth
     NetWorth = Storage['Cash'] + Storage['AXPShares']*DataFrame['Close'].iloc[days]
-    reward = NetWorth - Storage['Old_NetWorth']
+    reward = NetWorth - Storage['Old_NetWorth'] #+ exreward
     Storage['Old_NetWorth'] = NetWorth
 
     return state, reward, Storage
@@ -172,6 +181,10 @@ for i in range(len(df)):
 TestYear = TestYear.iloc[::-1]
 
 #eventually make this into an evaluation function, to make it callable
+
+PlotAction = []
+PlotNetWorth = []
+PlotShares = []
 SimulationYears = 1
 days = 0 #keeps track of the days
 TestStorage = {'AXPShares': 0, #Storage for other stuff
@@ -185,6 +198,10 @@ while not done: #This plays the game untill it is done
     new_s, r, TestStorage = TradeAction(a,TestStorage,days,TestYear) #This does the action So here the function must be called 
     s = new_s
     days += 1 
+    PlotAction.append(a)
+    PlotNetWorth.append(TestStorage['Old_NetWorth'])
+    PlotShares.append(TestStorage['AXPShares'])
+    
     if days == len(TestYear): #This stops the While loop
         done = True
 
@@ -203,9 +220,38 @@ Different states can apperently increase computational time pretty hard.
 """
 Just quickly checking what the current training end testing year looks like:
 """
-"""
-plt.plot(df1['Close'])
+
+
+
+BuyY = []
+BuyX = []
+SellY = []
+SellX = []
+days = []
+for i in range(len(PlotAction)):
+    if PlotAction[i] == 0:
+        BuyY.append(TestYear['Close'][i]) 
+        BuyX.append(i)
+    if PlotAction[i] == 1:
+        SellY.append( TestYear['Close'][i])
+        SellX.append(i)
+    days.append(i)
+
+pdays = []
+for i in range(len(df1)):
+ pdays.append(i)
+
+plt.plot(pdays,df1['Close'])
 plt.show()
-plt.plot(TestYear['Close'])
+
+fig, ax = plt.subplots()
+
+ax.plot(days,TestYear['Close'],'b-',BuyX,BuyY,'g.',SellX,SellY,'r.')
 plt.show()
-"""
+
+fig, (ax1, ax2) = plt.subplots(2,1,sharex=True)
+ax1.plot(PlotNetWorth)
+ax2.plot(PlotShares)
+ax1.set_ylabel('Net Worth')
+ax2.set_ylabel('# shares')
+plt.show()
