@@ -128,7 +128,7 @@ some valuable plots and save them on the server.
 A problem is that when you put it in a function the 'model' becomes local... how to make it global again? just putting 
 global model in the code hah.
 """
-def LayerAssesment(MinL=1,MaxL=3): #This function will thus always asses layers 1 to 3 
+def LayerAssesment(MinL=1,MaxL=3,num_episodes=100): #This function will thus always asses layers 1 to 3 
     global model
     MaxL += 1 #in order to actually create the number of layers the user wants
     for i in range(MinL,MaxL): #This for-loop resets the model after each assesment
@@ -140,13 +140,13 @@ def LayerAssesment(MinL=1,MaxL=3): #This function will thus always asses layers 
         model.compile(loss='mse', optimizer='adam', metrics=['mae'])
         #saving mechanism:
         if i == MinL:
-            Rewards = q_learning_keras()
+            Rewards = q_learning_keras(num_episodes)
             RewardsB = Rewards
         else:
-            Rewards = q_learning_keras()
+            Rewards = q_learning_keras(num_episodes)
             RewardsB = np.vstack((RewardsB,Rewards))
 
-    for k in range(0,MaxL-1):
+    for k in range(0,MaxL-MinL):
         plt.plot(RewardsB[k])
 
     #add a legend! need some list created or something
@@ -159,4 +159,4 @@ def LayerAssesment(MinL=1,MaxL=3): #This function will thus always asses layers 
 #User input number of states related to the state mechanism that is used.
 num_states = 3
 #Call the LayerAssesment
-LayerAssesment(2,4)
+LayerAssesment(2,4,150)
