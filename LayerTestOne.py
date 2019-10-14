@@ -16,6 +16,7 @@ from keras.layers import Dense, InputLayer
 import matplotlib.pyplot as plt
 import RoyStates
 import SvenStates
+import gym
 
 #load in the AXP data and select data from 2000 to 2001:
 MainDirectory = os.getcwd()
@@ -46,7 +47,7 @@ def q_learning_keras(num_episodes=100): #Number of training runs
     
     
     # now execute the q learning
-    y = 0.25 
+    y = 0.95 
     eps = 0.5
     decay_factor = 0.999
     r_avg_list = []
@@ -59,7 +60,8 @@ def q_learning_keras(num_episodes=100): #Number of training runs
         days = 0 #keeps track of the days
         Storage = {'AXPShares': 0, #Storage for other stuff
             'Cash': 1000,
-            'Old_NetWorth': 1000}
+            'Old_NetWorth': 1000,
+            'Ema': 0}
         if i == 0:
             start = time.time()    #start timer on first run
         if i % 10 == 0:
@@ -91,32 +93,38 @@ def q_learning_keras(num_episodes=100): #Number of training runs
         NumberSharesList.append(Storage['AXPShares'])
         NetWorthList.append(Storage['Old_NetWorth'])
         CashList.append(Storage['Cash'])
+    for i in range(num_states):
+        print("State {} - action {}".format(i, model.predict(np.identity(num_states)[i:i + 1])))
     return r_avg_list    
-    
+
+
+
     
 def TradeAction(action,Storage,days,DataFrame): #action is the action the agent chooses, while Storage is a dictionary which stores Trading process?
     #action 0 is buying
     #action 1 is selling
     #action 2 is holding on
-
     if action == 0 and (Storage['Cash']-DataFrame['Close'].iloc[days])>0:
             Storage['AXPShares'] += 1 #for now it only buys one share at a time
             Storage['Cash'] -= DataFrame['Close'].iloc[days] #removing money from cash
-            
+            exreward = 0
     elif action == 1 and Storage['AXPShares'] > 0:
             Storage['AXPShares'] -= 1 #selling 1 share
             Storage['Cash'] += DataFrame['Close'].iloc[days] #adding money to cash
-            
+            exreward = 0
     else:
-        pass
+        if action == 1 or action == 0:
+            exreward = -10;
+        else:
+            exreward = 0
 
     #the state method:
-    state = RoyStates.Example(Storage,days,DataFrame)
+    state = RoyStates.CHEAT(Storage,days,DataFrame)
     
     NetWorth = Storage['Cash'] + Storage['AXPShares']*DataFrame['Close'].iloc[days]
-    reward = NetWorth - Storage['Old_NetWorth'] 
+    reward = NetWorth - Storage['Old_NetWorth'] + exreward
     Storage['Old_NetWorth'] = NetWorth
-
+    #print(state, action, reward, exreward)
     return state, reward, Storage
 
 
@@ -130,12 +138,14 @@ global model in the code hah.
 """
 def LayerAssesment(MinL=1,MaxL=3,num_episodes=100): #This function will thus always asses layers 1 to 3 
     global model
+    global env
+    env = gym.make('NChain-v0')
     MaxL += 1 #in order to actually create the number of layers the user wants
     for i in range(MinL,MaxL): #This for-loop resets the model after each assesment
         model = Sequential()
         model.add(InputLayer(batch_input_shape=(1, num_states))) #should thus be the 3x1 vector (1,0,0) state0 state1 = (0,1,0) ...
         for j in range(MinL,i+1): #loop in order to create the right amount of layers each time
-            model.add(Dense(150, activation='relu')) #adds layers
+            model.add(Dense(150, activation='sigmoid')) #adds layers
         model.add(Dense(3, activation='linear')) #3 possible actions to be taken (output layer)
         model.compile(loss='mse', optimizer='adam', metrics=['mae'])
         #saving mechanism:
@@ -154,9 +164,12 @@ def LayerAssesment(MinL=1,MaxL=3,num_episodes=100): #This function will thus alw
     for k in range(MinL+1,MaxL+1):
         LegendList.append('{} layer(s)'.format(k))
     plt.legend(LegendList)
+    plt.ylabel('reward')
+    plt.xlabel('number of episodes')
+    plt.title('Layer test')
     plt.show()
 
 #User input number of states related to the state mechanism that is used.
-num_states = 3
+num_states = 2
 #Call the LayerAssesment
-LayerAssesment(2,4,150)
+LayerAssesment(3,4,250)

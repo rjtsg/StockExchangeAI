@@ -255,3 +255,15 @@ def CMA(Storage,days,DataFrame):
         state = 2
     return state
 
+"""
+here I will construct a state function to cheat. it states are the days thats it. 
+this means the AI thus only has to learn to remember the days to know how to maximize reward.
+"""
+def CHEAT(Storage,days,DataFrame): #248 states?
+    #state = days
+    x=10
+    if  days < 247-x and DataFrame['Close'][days+x] > DataFrame['Close'][days]:
+        state=0
+    else:
+        state=1
+    return state
