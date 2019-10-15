@@ -56,7 +56,7 @@ def q_learning_keras(num_episodes=100): #Number of training runs
     CashList = []
     for i in range(num_episodes): #start the training
         eps *= decay_factor
-        s = 0 #always start from state 0 (no shares)
+        s = 0 #always start from state 2 (day 0)
         days = 0 #keeps track of the days
         Storage = {'AXPShares': 0, #Storage for other stuff
             'Cash': 1000,
@@ -138,8 +138,7 @@ global model in the code hah.
 """
 def LayerAssesment(MinL=1,MaxL=3,num_episodes=100): #This function will thus always asses layers 1 to 3 
     global model
-    global env
-    env = gym.make('NChain-v0')
+    
     MaxL += 1 #in order to actually create the number of layers the user wants
     for i in range(MinL,MaxL): #This for-loop resets the model after each assesment
         model = Sequential()
@@ -167,7 +166,7 @@ def LayerAssesment(MinL=1,MaxL=3,num_episodes=100): #This function will thus alw
 
     #add a legend! need some list created or something
     LegendList = ['{} layer(s)'.format(MinL)]
-    for k in range(MinL,MaxL+1):
+    for k in range(MinL+1,MaxL+1):
         LegendList.append('{} layer(s)'.format(k))
     plt.legend(LegendList)
     plt.ylabel('reward')
@@ -178,4 +177,4 @@ def LayerAssesment(MinL=1,MaxL=3,num_episodes=100): #This function will thus alw
 #User input number of states related to the state mechanism that is used.
 num_states = 248
 #Call the LayerAssesment
-LayerAssesment(3,10,250)
+LayerAssesment(3,3,1000)
