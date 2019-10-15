@@ -114,7 +114,7 @@ def TradeAction(action,Storage,days,DataFrame): #action is the action the agent 
             exreward = 0
     else:
         if action == 1 or action == 0:
-            exreward = -10;
+            exreward = -10
         else:
             exreward = 0
 
@@ -122,7 +122,7 @@ def TradeAction(action,Storage,days,DataFrame): #action is the action the agent 
     state = RoyStates.CHEAT(Storage,days,DataFrame)
     
     NetWorth = Storage['Cash'] + Storage['AXPShares']*DataFrame['Close'].iloc[days]
-    reward = NetWorth - Storage['Old_NetWorth'] + exreward
+    reward = NetWorth - Storage['Old_NetWorth']
     Storage['Old_NetWorth'] = NetWorth
     #print(state, action, reward, exreward)
     return state, reward, Storage
@@ -145,7 +145,7 @@ def LayerAssesment(MinL=1,MaxL=3,num_episodes=100): #This function will thus alw
         model = Sequential()
         model.add(InputLayer(batch_input_shape=(1, num_states))) #should thus be the 3x1 vector (1,0,0) state0 state1 = (0,1,0) ...
         for j in range(MinL,i+1): #loop in order to create the right amount of layers each time
-            model.add(Dense(150, activation='sigmoid')) #adds layers
+            model.add(Dense(15, activation='sigmoid')) #adds layers
         model.add(Dense(3, activation='linear')) #3 possible actions to be taken (output layer)
         model.compile(loss='mse', optimizer='adam', metrics=['mae'])
         #saving mechanism:
@@ -156,12 +156,18 @@ def LayerAssesment(MinL=1,MaxL=3,num_episodes=100): #This function will thus alw
             Rewards = q_learning_keras(num_episodes)
             RewardsB = np.vstack((RewardsB,Rewards))
 
-    for k in range(0,MaxL-MinL):
-        plt.plot(RewardsB[k])
+    
+    if MaxL-MinL == 1:
+        plt.plot(RewardsB)
+    else:
+        for k in range(0,MaxL-MinL):
+            plt.plot(RewardsB[k])
+    
+
 
     #add a legend! need some list created or something
     LegendList = ['{} layer(s)'.format(MinL)]
-    for k in range(MinL+1,MaxL+1):
+    for k in range(MinL,MaxL+1):
         LegendList.append('{} layer(s)'.format(k))
     plt.legend(LegendList)
     plt.ylabel('reward')
@@ -170,6 +176,6 @@ def LayerAssesment(MinL=1,MaxL=3,num_episodes=100): #This function will thus alw
     plt.show()
 
 #User input number of states related to the state mechanism that is used.
-num_states = 2
+num_states = 248
 #Call the LayerAssesment
-LayerAssesment(3,4,250)
+LayerAssesment(3,10,250)
