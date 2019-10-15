@@ -2,7 +2,9 @@
 import pandas as pd
 import numpy as np
 
-def Example(Storage,days,DataFrame): #3 states
+
+
+def Check2Days(Storage,days,DataFrame): #3 states
     #state0 = 2 days ago price is higher
     #state1 = 1 day ago price is higher
     #state2 = prices are equal
@@ -254,4 +256,33 @@ def CMA(Storage,days,DataFrame):
     else:
         state = 2
     return state
+
+def EMA(Storage,days,DataFrame):
+    k = 0.1818 #10 days = 2/(1+days)
+    Storage['Ema'] = DataFrame['Close'].iloc[days-1]*k + Storage['Ema']*(1-k)
+    if (Storage['Ema'] > DataFrame['Close'].iloc[days-1]):
+        state = 0
+    else:
+        state = 1
+    return state
+
+def endState(Storage,days,DataFrame):
+    check2Days = Check2Days(Storage,days,DataFrame)
+    shortTerm = ShortTerm(Storage,days,DataFrame)
+    longTerm = LongTerm(Storage,days,DataFrame)
+    freeCash = FreeCash(Storage,days,DataFrame)
+    gradient10 = Gradient10(Storage,days,DataFrame)
+    sma10 = SMA10(Storage,days,DataFrame)
+    cma = CMA(Storage,days,DataFrame)
+    ema = EMA(Storage,days,DataFrame)
+
+    position = (check2Days-1)*shortTerm*longTerm*freeCash*gradient10*sma10*cma*ema
+    position = position + 
+
+
+    
+
+
+
+
 

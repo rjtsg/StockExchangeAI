@@ -70,7 +70,8 @@ def q_learning_keras(num_episodes=500): #Number of training runs
         days = 0 #keeps track of the days
         Storage = {'AXPShares': 0, #Storage for other stuff
             'Cash': 1000,
-            'Old_NetWorth': 1000}
+            'Old_NetWorth': 1000,
+            'Ema': 0}
         if i == 0:
             start = time.time()    #start timer on first run
         if i % 10 == 0:
